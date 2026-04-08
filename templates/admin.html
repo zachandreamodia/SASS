@@ -1,0 +1,318 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SASS | Professional Admin Dashboard</title>
+    
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;800&display=swap" rel="stylesheet">
+
+    <style>
+        :root {
+            --primary: #4dabf7;
+            --primary-dark: #339af0;
+            --primary-glow: rgba(77, 171, 247, 0.3);
+            --bg-gradient: radial-gradient(circle at top left, #1a365d, #0a192f);
+            --glass: rgba(255, 255, 255, 0.04);
+            --glass-border: rgba(255, 255, 255, 0.1);
+            --text-main: #f5f7fa;
+            --text-muted: #94a3b8;
+            --success: #51cf66;
+            --warning: #fcc419;
+            --danger: #ff6b6b;
+        }
+
+        /* ----------------- Global Resets ----------------- */
+        * { margin:0; padding:0; box-sizing:border-box; font-family: 'Inter', sans-serif; }
+        body {
+            background: var(--bg-gradient);
+            background-attachment: fixed;
+            color: var(--text-main);
+            min-height: 100vh;
+            display: flex;
+            overflow-x: hidden;
+        }
+
+        /* ----------------- Sidebar ----------------- */
+        .sidebar {
+            width: 280px;
+            background: rgba(10, 25, 47, 0.6);
+            backdrop-filter: blur(20px);
+            border-right: 1px solid var(--glass-border);
+            display: flex;
+            flex-direction: column;
+            padding: 30px 20px;
+            position: fixed;
+            height: 100vh;
+            z-index: 100;
+        }
+
+        .sidebar-brand {
+            font-size: 1.5rem;
+            font-weight: 800;
+            color: var(--primary);
+            margin-bottom: 40px;
+            padding-left: 15px;
+            letter-spacing: 1px;
+        }
+
+        .sidebar-nav li { list-style: none; margin-bottom: 8px; }
+        .sidebar-nav a {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+            padding: 12px 15px;
+            border-radius: 12px;
+            color: var(--text-muted);
+            text-decoration: none;
+            transition: all 0.3s ease;
+            font-weight: 500;
+        }
+
+        .sidebar-nav a:hover, .sidebar-nav li.active a {
+            background: var(--glass);
+            color: var(--primary);
+            box-shadow: inset 0 0 10px rgba(77, 171, 247, 0.1);
+        }
+
+        .sidebar-nav i { width: 20px; text-align: center; }
+
+        /* ----------------- Main Content ----------------- */
+        .main-content {
+            flex: 1;
+            margin-left: 280px;
+            padding: 40px 50px;
+            max-width: 1400px;
+        }
+
+        /* Top Header */
+        .header-top {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 40px;
+        }
+
+        .user-widget {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            background: var(--glass);
+            padding: 8px 18px;
+            border-radius: 50px;
+            border: 1px solid var(--glass-border);
+        }
+
+        /* ----------------- KPI Stats ----------------- */
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+            gap: 25px;
+            margin-bottom: 40px;
+        }
+
+        .stat-card {
+            background: var(--glass);
+            padding: 25px;
+            border-radius: 24px;
+            border: 1px solid var(--glass-border);
+            position: relative;
+            transition: transform 0.3s ease;
+        }
+
+        .stat-card:hover { transform: translateY(-5px); border-color: var(--primary); }
+        .stat-card h3 { font-size: 0.85rem; color: var(--text-muted); text-transform: uppercase; letter-spacing: 1px; }
+        .stat-card .value { font-size: 2rem; font-weight: 800; margin: 10px 0; }
+        .trend { font-size: 0.8rem; font-weight: 600; display: flex; align-items: center; gap: 5px; }
+        .trend.up { color: var(--success); }
+
+        /* ----------------- Table Section ----------------- */
+        .table-container {
+            background: var(--glass);
+            border-radius: 24px;
+            border: 1px solid var(--glass-border);
+            padding: 30px;
+            backdrop-filter: blur(10px);
+        }
+
+        .table-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 25px;
+        }
+
+        .search-box {
+            position: relative;
+            width: 300px;
+        }
+
+        .search-box input {
+            width: 100%;
+            background: rgba(255,255,255,0.05);
+            border: 1px solid var(--glass-border);
+            padding: 12px 15px 12px 45px;
+            border-radius: 12px;
+            color: white;
+            outline: none;
+            transition: 0.3s;
+        }
+
+        .search-box input:focus { border-color: var(--primary); box-shadow: 0 0 0 4px var(--primary-glow); }
+        .search-box i { position: absolute; left: 18px; top: 50%; transform: translateY(-50%); color: var(--text-muted); }
+
+        table { width: 100%; border-collapse: collapse; }
+        th { text-align: left; padding: 15px; color: var(--primary); font-size: 0.85rem; text-transform: uppercase; border-bottom: 1px solid var(--glass-border); }
+        td { padding: 20px 15px; border-bottom: 1px solid rgba(255,255,255,0.03); font-size: 0.95rem; }
+        tr:hover td { background: rgba(255,255,255,0.02); }
+
+        /* Status Badge */
+        .badge {
+            padding: 5px 12px;
+            border-radius: 8px;
+            font-size: 0.75rem;
+            font-weight: 700;
+            text-transform: uppercase;
+        }
+        .badge-active { background: rgba(81, 207, 102, 0.15); color: var(--success); }
+
+        /* Buttons */
+        .btn-add {
+            background: linear-gradient(135deg, var(--primary), var(--primary-dark));
+            color: white;
+            padding: 12px 24px;
+            border-radius: 12px;
+            text-decoration: none;
+            font-weight: 600;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            box-shadow: 0 10px 20px var(--primary-glow);
+            transition: 0.3s;
+        }
+        .btn-add:hover { transform: scale(1.03); filter: brightness(1.1); }
+
+        .action-icon {
+            color: var(--text-muted);
+            margin-right: 12px;
+            cursor: pointer;
+            transition: 0.2s;
+        }
+        .action-icon:hover { color: var(--primary); }
+        .delete:hover { color: var(--danger); }
+
+        @media (max-width: 1024px) {
+            .sidebar { width: 80px; padding: 30px 10px; }
+            .sidebar-brand, .sidebar-nav span { display: none; }
+            .main-content { margin-left: 80px; }
+        }
+    </style>
+</head>
+<body>
+
+    <aside class="sidebar">
+        <div class="sidebar-brand">SASS PRO</div>
+        <ul class="sidebar-nav">
+            <li class="active"><a href="#"><i class="fas fa-th-large"></i> <span>Dashboard</span></a></li>
+            <li><a href="#"><i class="fas fa-concierge-bell"></i> <span>Services</span></a></li>
+            <li><a href="#"><i class="fas fa-users"></i> <span>Customers</span></a></li>
+            <li><a href="#"><i class="fas fa-calendar-alt"></i> <span>Appointments</span></a></li>
+            <li><a href="#"><i class="fas fa-chart-pie"></i> <span>Analytics</span></a></li>
+            <li style="margin-top: auto;"><a href="#"><i class="fas fa-cog"></i> <span>Settings</span></a></li>
+            <li><a href="/logout" style="color: var(--danger);"><i class="fas fa-sign-out-alt"></i> Logout</a>
+</li> </ul>
+    </aside>
+
+    <main class="main-content">
+        
+        <header class="header-top">
+            <div>
+                <h1>System Overview</h1>
+                <p style="color: var(--text-muted);">Welcome back, Admin. Here is what's happening today.</p>
+            </div>
+            <div class="user-widget">
+                <span style="font-size: 0.9rem; font-weight: 600;">Admin User</span>
+                <img src="https://ui-avatars.com/api/?name=Admin&background=4dabf7&color=fff" style="width: 32px; border-radius: 50%;" alt="avatar">
+            </div>
+        </header>
+
+        <section class="stats-grid">
+            <div class="stat-card">
+                <h3>Total Revenue</h3>
+                <div class="value">$24,150</div>
+                <div class="trend up"><i class="fas fa-arrow-up"></i> 12% increase</div>
+            </div>
+            <div class="stat-card">
+                <h3>Active Services</h3>
+                <div class="value">{{ services|length }}</div>
+                <div class="trend" style="color: var(--primary);"><i class="fas fa-check-circle"></i> System healthy</div>
+            </div>
+            <div class="stat-card">
+                <h3>New Bookings</h3>
+                <div class="value">48</div>
+                <div class="trend up"><i class="fas fa-arrow-up"></i> 8% increase</div>
+            </div>
+        </section>
+
+        <section class="table-container">
+            <div class="table-header">
+                <div class="search-box">
+                    <i class="fas fa-search"></i>
+                    <input type="text" id="serviceSearch" placeholder="Search by service name..." onkeyup="filterTable()">
+                </div>
+                <a href="{{ url_for('addservice') }}" class="btn-add">
+                    <i class="fas fa-plus"></i> Add Service
+                </a>
+            </div>
+
+            <table id="serviceTable">
+                <thead>
+                    <tr>
+                        <th>ID</th>
+                        <th>Service Name</th>
+                        <th>Category</th> <th>Duration</th> <th>Price</th>
+                        <th>Status</th>
+                        <th style="text-align: right;">Actions</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for id, service in services.items() %}
+                    <tr>
+                        <td style="color: var(--text-muted);">#{{ service.service_id }}</td>
+                        <td style="font-weight: 600;">{{ service.service_name }}</td>
+                        <td>{{ service.category }}</td> <td>{{ service.duration }}</td> <td>${{ service.price }}</td>
+                        <td><span class="badge badge-active">{{ service.status }}</span></td>
+                        <td style="text-align: right;">
+                            <i class="fas fa-edit action-icon"></i>
+                            <i class="fas fa-trash action-icon delete"></i>
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </section>
+    </main>
+
+    <script>
+        function filterTable() {
+            let input = document.getElementById("serviceSearch");
+            let filter = input.value.toUpperCase();
+            let table = document.getElementById("serviceTable");
+            let tr = table.getElementsByTagName("tr");
+
+            for (let i = 1; i < tr.length; i++) {
+                let tdName = tr[i].getElementsByTagName("td")[1];
+                if (tdName) {
+                    let txtValue = tdName.textContent || tdName.innerText;
+                    if (txtValue.toUpperCase().indexOf(filter) > -1) {
+                        tr[i].style.display = "";
+                    } else {
+                        tr[i].style.display = "none";
+                    }
+                }
+            }
+        }
+    </script>
+</body>
+</html>

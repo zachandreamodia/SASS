@@ -54,3 +54,22 @@ Module:
  Module 1-Log in mannagement
   This module handles user authentication in the system. It allows users to securely log in and access different dashboards based on their roles.
  
+@app.route("/login", methods=["GET", "POST"])
+def login():
+
+    if request.method == "POST":
+        username = request.form['username']
+        password = request.form['password']
+
+        if username in USER:
+            if USER[username][0] == password:
+                if USER[username][1] == 'admin':
+                    return render_template("admin.html", services=services)
+                else:
+                    return render_template("user.html")
+            else:
+                return render_template("login.html", message="Invalid username or password")
+        else:
+            return render_template("login.html", message="Invalid username or password")
+
+    return render_template("login.html", message="")
