@@ -1,3 +1,8 @@
+ZACH ANDRE AMODIA
+JOHN LEE MILLAN
+HANZ JOYCE MARZON
+JANE LYKA BARNIGO
+
 # Title
 ## Service Appointment and Scheduling System
 
