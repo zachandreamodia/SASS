@@ -1,0 +1,69 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Edit Service</title>
+
+    <style>
+        body {
+            font-family: Arial;
+            background: #1e3a5f;
+            color: white;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+        }
+
+        .form-box {
+            background: rgba(255,255,255,0.1);
+            padding: 30px;
+            border-radius: 15px;
+            width: 300px;
+        }
+
+        input {
+            width: 100%;
+            padding: 10px;
+            margin: 10px 0;
+            border: none;
+            border-radius: 5px;
+        }
+
+        button {
+            width: 100%;
+            padding: 10px;
+            background: #4dabf7;
+            border: none;
+            border-radius: 5px;
+            color: white;
+            font-weight: bold;
+            cursor: pointer;
+        }
+
+        button:hover {
+            background: #339af0;
+        }
+    </style>
+</head>
+<body>
+
+<div class="form-box">
+    <h2>Edit Service</h2>
+
+    <form method="POST">
+        <label>Service Name</label>
+        <input type="text" name="service_name" value="{{ service.service_name }}" required>
+
+        <label>Category</label>
+        <input type="text" name="category" value="{{ service.category }}" required>
+
+        <label>Price</label>
+        <input type="text" name="price" value="{{ service.price }}" required>
+
+        <button type="submit">Update Service</button>
+    </form>
+</div>
+
+</body>
+</html>

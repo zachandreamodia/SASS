@@ -18,10 +18,13 @@ services = {
 
 appointments = {}
 
+@app.route("/about")
+def about():
+    return render_template("about.html")
+
 @app.route('/')
 def home():
     return render_template("dashboard.html")
-
 
 @app.route("/login", methods=["GET", "POST"])
 def login():
@@ -32,16 +35,22 @@ def login():
 
         if username in USER:
             if USER[username][0] == password:
+
+                # ✅ SET SESSION (VERY IMPORTANT)
+                session["username"] = username
+                session["role"] = USER[username][1]
+
+                # ✅ REDIRECT PROPERLY
                 if USER[username][1] == 'admin':
-                    return render_template("admin.html", services=services)
+                    return redirect(url_for("admin"))
                 else:
-                    return render_template("user.html")
+                    return redirect(url_for("user_dashboard"))
+
             else:
                 return render_template("login.html", message="Invalid username or password")
         else:
             return render_template("login.html", message="Invalid username or password")
 
-    # VERY IMPORTANT (GET request)
     return render_template("login.html", message="")
 
 @app.route("/addservice", methods=["GET", "POST"])
@@ -70,6 +79,34 @@ def addservice():
             return redirect(url_for("admin"))
         
     return render_template("addService.html")
+
+@app.route("/edit_service/<id>", methods=["GET", "POST"])
+def edit_service(id):
+    if session.get("role") != "admin":
+        return redirect(url_for("login"))
+
+    service = services.get(id)
+
+    # If service not found
+    if not service:
+        return redirect(url_for("admin"))
+
+    if request.method == "POST":
+        service["service_name"] = request.form.get("service_name")
+        service["category"] = request.form.get("category")
+        service["price"] = request.form.get("price")
+
+        return redirect(url_for("admin"))
+
+    return render_template("edit_service.html", service=service)
+
+@app.route("/delete_service/<id>")
+def delete_service(id):
+    if session.get("role") != "admin":
+        return redirect(url_for("login"))
+
+    services.pop(id, None)
+    return redirect(url_for("admin"))
 
 @app.route("/admin")
 def admin():
