@@ -1,0 +1,30 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <style>
+        body { background: #0a192f; color: white; font-family: 'Inter', sans-serif; display: flex; justify-content: center; align-items: center; min-height: 100vh; margin: 0; }
+        .form-card { background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.1); padding: 40px; border-radius: 20px; width: 350px; }
+        input, select { width: 100%; padding: 12px; margin: 10px 0; background: rgba(0,0,0,0.2); border: 1px solid rgba(255,255,255,0.1); color: white; border-radius: 8px; box-sizing: border-box; }
+        .btn-submit { background: #4dabf7; width: 100%; padding: 12px; border: none; color: white; font-weight: bold; border-radius: 8px; cursor: pointer; margin-top: 10px; }
+    </style>
+</head>
+<body>
+    <div class="form-card">
+        <h2>{{ 'Edit' if appt else 'Book' }} Appointment</h2>
+        <form method="POST">
+            <label>Choose Service</label>
+            <select name="service">
+                {% for id, s in services.items() %}
+                <option value="{{ s.service_name }}" {{ 'selected' if appt and appt.service == s.service_name }}>{{ s.service_name }}</option>
+                {% endfor %}
+            </select>
+            <label>Date</label>
+            <input type="date" name="date" value="{{ appt.date if appt }}" required>
+            <label>Time</label>
+            <input type="time" name="time" value="{{ appt.time if appt }}" required>
+            <button type="submit" class="btn-submit">Confirm</button>
+            <a href="/user_dashboard" style="display: block; text-align: center; margin-top: 15px; color: #94a3b8; text-decoration: none;">Cancel</a>
+        </form>
+    </div>
+</body>
+</html>

@@ -1,27 +1,36 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>addService</title>
+    <style>
+        :root { --primary: #4dabf7; --bg: #0a192f; --glass: rgba(255,255,255,0.05); --border: rgba(255,255,255,0.1); }
+        body { background: var(--bg); color: white; font-family: 'Inter', sans-serif; display: flex; justify-content: center; align-items: center; min-height: 100vh; margin: 0; }
+        .form-card { background: var(--glass); padding: 40px; border-radius: 24px; border: 1px solid var(--border); width: 100%; max-width: 400px; backdrop-filter: blur(10px); }
+        h2 { color: var(--primary); margin-bottom: 20px; }
+        label { display: block; margin-top: 15px; font-size: 0.85rem; color: #94a3b8; }
+        input { width: 100%; padding: 12px; margin-top: 5px; background: rgba(0,0,0,0.2); border: 1px solid var(--border); color: white; border-radius: 8px; box-sizing: border-box; }
+        .btn-submit { background: var(--primary); width: 100%; padding: 14px; border: none; color: white; font-weight: 800; border-radius: 8px; cursor: pointer; margin-top: 25px; transition: 0.3s; }
+        .btn-submit:hover { opacity: 0.9; transform: translateY(-2px); }
+    </style>
 </head>
 <body>
-    <form method="POST">
-        <label for="service_id">ID</label>
-        <br>
-        <input type="number" name="service_id" placeholder="Service ID" required/>
-        <br>
-        <label for="service_name">Service Name</label><br>
-        <input type="text" name="service_name" placeholder="Service Name" required/>
-        <br>
-        <label for="price">Price</label><br>
-        <input type="number" name="price" placeholder="Service Price" required/>
-        <br>
-        <label for="category">Category</label><br>
-        <input type="text" name="category" placeholder="Category" required/>
-        <br>
-        <input type="submit" value="Submit">
+    <div class="form-card">
+        <h2>New Service</h2>
+        <form action="/addservice" method="POST">
+            <label>Service ID</label>
+            <input type="text" name="service_id" placeholder="e.g. 5001" required>
 
-    </form>
+            <label>Service Name</label>
+            <input type="text" name="service_name" placeholder="e.g. Oil Change" required>
+
+            <label>Category</label>
+            <input type="text" name="category" placeholder="e.g. Maintenance" required>
+
+            <label>Price ($)</label>
+            <input type="number" name="price" placeholder="e.g. 50" required>
+
+            <button type="submit" class="btn-submit">Add to Catalog</button>
+            <a href="/admin" style="display: block; text-align: center; margin-top: 20px; color: #94a3b8; text-decoration: none; font-size: 0.9rem;">Cancel</a>
+        </form>
+    </div>
 </body>
 </html>

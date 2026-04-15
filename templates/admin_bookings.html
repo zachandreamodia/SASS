@@ -9,41 +9,43 @@
         .nav-link { display: flex; align-items: center; gap: 15px; padding: 12px 15px; color: #94a3b8; text-decoration: none; border-radius: 10px; margin-bottom: 10px; }
         .nav-link.active { background: var(--glass); color: var(--primary); }
         .main { margin-left: 280px; flex: 1; padding: 40px; }
-        .header-flex { display: flex; justify-content: space-between; align-items: center; margin-bottom: 30px; }
         .table-container { background: var(--glass); padding: 25px; border-radius: 20px; border: 1px solid var(--border); }
         table { width: 100%; border-collapse: collapse; }
-        th { text-align: left; color: var(--primary); border-bottom: 1px solid var(--border); padding-bottom: 15px; font-size: 0.8rem; }
-        td { padding: 15px 0; border-bottom: 1px solid rgba(255,255,255,0.05); }
-        .btn-add { background: var(--primary); color: white; padding: 10px 20px; border-radius: 8px; text-decoration: none; font-weight: bold; }
+        th { text-align: left; color: var(--primary); border-bottom: 1px solid var(--border); padding-bottom: 15px; }
+        td { padding: 20px 0; border-bottom: 1px solid rgba(255,255,255,0.05); }
+        .user-tag { background: rgba(77, 171, 247, 0.1); color: var(--primary); padding: 4px 10px; border-radius: 5px; font-weight: 600; }
     </style>
 </head>
 <body>
     <aside class="sidebar">
         <h2 style="color: var(--primary);">SASS ADMIN</h2>
-        <a href="/admin" class="nav-link active"><i class="fas fa-th-large"></i> Dashboard</a>
-        <a href="/admin/bookings" class="nav-link"><i class="fas fa-book"></i> User Bookings</a>
+        <a href="/admin" class="nav-link"><i class="fas fa-th-large"></i> Dashboard</a>
+        <a href="/admin/bookings" class="nav-link active"><i class="fas fa-book"></i> User Bookings</a>
         <a href="/logout" class="nav-link" style="margin-top:auto; color:#ff6b6b;"><i class="fas fa-sign-out-alt"></i> Logout</a>
     </aside>
 
     <main class="main">
-        <div class="header-flex">
-            <h1>Service Catalog</h1>
-            <a href="/addservice" class="btn-add">+ Add New Service</a>
-        </div>
+        <h1>Customer Appointments</h1>
+        <p style="color: #94a3b8; margin-bottom: 30px;">Manage all incoming client requests.</p>
+
         <div class="table-container">
             <table>
                 <thead>
-                    <tr><th>ID</th><th>Service Name</th><th>Category</th><th>Price</th><th>Status</th></tr>
+                    <tr><th>Customer</th><th>Service Requested</th><th>Date & Time</th><th>Status</th><th>Actions</th></tr>
                 </thead>
                 <tbody>
-                    {% for id, s in services.items() %}
+                    {% for id, appt in appointments.items() %}
                     <tr>
-                        <td>#{{ s.service_id }}</td>
-                        <td>{{ s.service_name }}</td>
-                        <td>{{ s.category }}</td>
-                        <td>${{ s.price }}</td>
-                        <td><span style="color: #51cf66;">{{ s.status }}</span></td>
+                        <td><span class="user-tag">{{ appt.user }}</span></td>
+                        <td><strong>{{ appt.service }}</strong></td>
+                        <td>{{ appt.date }} at {{ appt.time }}</td>
+                        <td style="color: #4dabf7;">{{ appt.status }}</td>
+                        <td>
+                            <a href="/delete/{{ id }}" style="color:#ff6b6b;" onclick="return confirm('Remove booking?')"><i class="fas fa-trash-alt"></i></a>
+                        </td>
                     </tr>
+                    {% else %}
+                    <tr><td colspan="5" style="text-align:center; padding: 40px; color: #94a3b8;">No bookings found in the system.</td></tr>
                     {% endfor %}
                 </tbody>
             </table>

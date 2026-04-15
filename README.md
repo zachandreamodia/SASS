@@ -1,3 +1,5 @@
+## MEMBERS: Zach Andre Amodia, Lyka Jane Barnigo, Hanz Joyce Marzon, John Lee Millan
+
 # Title
 ## Service Appointment and Scheduling System
 
