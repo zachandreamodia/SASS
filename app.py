@@ -1,4 +1,5 @@
 from flask import Flask, render_template, request, redirect, url_for, session
+from datetime import datetime, timedelta
 import uuid
 
 app = Flask(__name__)
@@ -17,6 +18,8 @@ services = {
 }
 
 appointments = {}
+
+
 
 @app.route("/about")
 def about():
@@ -55,19 +58,16 @@ def login():
 
 @app.route("/addservice", methods=["GET", "POST"])
 def addservice():
-    # Security: only admins can add services
     if session.get("role") != "admin":
         return redirect(url_for("login"))
 
     if request.method == "POST":
-        # Get data from the form
         sid = request.form.get("service_id")
         name = request.form.get("service_name")
         cat = request.form.get("category")
         prc = request.form.get("price")
 
-        # Validation: Ensure ID doesn't already exist and fields aren't empty
-        if sid and name and sid not in services:
+        if sid and name:
             services[sid] = {
                 "service_id": sid,
                 "service_name": name,
@@ -75,10 +75,52 @@ def addservice():
                 "price": prc,
                 "status": "Active"
             }
-            # Redirect back to the dashboard to see the new service
+
             return redirect(url_for("admin"))
-        
+
     return render_template("addService.html")
+
+@app.route("/admin/report", methods=["GET", "POST"])
+def admin_report():
+    if session.get("role") != "admin":
+        return redirect(url_for("login"))
+
+    selected_service = request.form.get("service")
+
+    today = datetime.today()
+
+    daily = 0
+    weekly = 0
+    monthly = 0
+
+    for appt in appointments.values():
+        try:
+            appt_date = datetime.strptime(appt["date"], "%Y-%m-%d")
+        except:
+            continue
+
+        # FILTER BY SELECTED SERVICE
+        if selected_service and appt["service"] != selected_service:
+            continue
+
+        # DAILY
+        if appt_date.date() == today.date():
+            daily += 1
+
+        # WEEKLY (last 7 days)
+        if today - timedelta(days=7) <= appt_date <= today:
+            weekly += 1
+
+        # MONTHLY
+        if appt_date.month == today.month and appt_date.year == today.year:
+            monthly += 1
+
+    return render_template("admin_report.html",
+                           services=services,
+                           selected_service=selected_service,
+                           daily=daily,
+                           weekly=weekly,
+                           monthly=monthly)
 
 @app.route("/edit_service/<id>", methods=["GET", "POST"])
 def edit_service(id):
@@ -136,9 +178,14 @@ def user_services():
 
 @app.route("/book", methods=["GET", "POST"])
 def book_appointment():
-    if "username" not in session: return redirect(url_for("login"))
+    if "username" not in session:
+        return redirect(url_for("login"))
+
     if request.method == "POST":
+
+        # ✅ ADD THIS LINE (THIS FIXES YOUR ERROR)
         appt_id = str(uuid.uuid4())[:8]
+
         appointments[appt_id] = {
             "id": appt_id,
             "user": session["username"],
@@ -147,8 +194,11 @@ def book_appointment():
             "time": request.form.get("time"),
             "status": "Confirmed"
         }
+
         return redirect(url_for("user_dashboard"))
+
     return render_template("book_appointment.html", services=services)
+
 
 @app.route("/edit/<id>", methods=["GET", "POST"])
 def edit_appointment(id):

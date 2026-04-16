@@ -1,0 +1,155 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>SASS | Reports</title>
+
+    <style>
+        :root {
+            --primary: #4dabf7;
+            --bg: #0a192f;
+            --glass: rgba(255,255,255,0.05);
+            --border: rgba(255,255,255,0.1);
+        }
+
+        body {
+            background: var(--bg);
+            color: white;
+            font-family: 'Inter', sans-serif;
+            display: flex;
+            margin: 0;
+        }
+
+        .sidebar {
+            width: 280px;
+            height: 100vh;
+            background: rgba(0,0,0,0.4);
+            padding: 30px 20px;
+            border-right: 1px solid var(--border);
+            position: fixed;
+        }
+
+        .nav-link {
+            display: flex;
+            gap: 15px;
+            padding: 12px;
+            color: #94a3b8;
+            text-decoration: none;
+            border-radius: 10px;
+            margin-bottom: 10px;
+        }
+
+        .nav-link.active {
+            background: var(--glass);
+            color: var(--primary);
+        }
+
+        .main {
+            margin-left: 280px;
+            padding: 40px;
+            width: 100%;
+        }
+
+        .card {
+            background: var(--glass);
+            padding: 30px;
+            border-radius: 20px;
+            border: 1px solid var(--border);
+            margin-bottom: 20px;
+        }
+
+        select, button {
+            padding: 10px;
+            border-radius: 8px;
+            border: none;
+            margin-top: 10px;
+        }
+
+        button {
+            background: var(--primary);
+            color: white;
+            cursor: pointer;
+        }
+
+        .results {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 20px;
+            margin-top: 20px;
+        }
+
+        .result-box {
+            background: var(--glass);
+            padding: 20px;
+            border-radius: 15px;
+            text-align: center;
+            border: 1px solid var(--border);
+        }
+
+        .result-box h2 {
+            color: var(--primary);
+            font-size: 30px;
+        }
+    </style>
+</head>
+
+<body>
+
+<aside class="sidebar">
+    <h2 style="color: var(--primary);">SASS ADMIN</h2>
+
+    <a href="/admin" class="nav-link">Dashboard</a>
+    <a href="/admin/bookings" class="nav-link">Bookings</a>
+    <a href="/admin/report" class="nav-link active">Reports</a>
+    <a href="/logout" class="nav-link" style="color:#ff6b6b;">Logout</a>
+</aside>
+
+<main class="main">
+
+<h1>📊 Service Reports</h1>
+
+<div class="card">
+    <form method="POST">
+        <label>Select Service:</label><br>
+
+        <select name="service" required>
+            <option value="">-- Choose Service --</option>
+            {% for id, s in services.items() %}
+            <option value="{{ s.service_id }}"
+                {% if selected_service == s.service_id %}selected{% endif %}>
+                {{ s.service_name }}
+            </option>
+            {% endfor %}
+        </select>
+
+        <br><br>
+
+        <button type="submit">Generate Report</button>
+    </form>
+</div>
+
+{% if selected_service %}
+<div class="results">
+
+    <div class="result-box">
+        <h3>Daily</h3>
+        <h2>{{ daily }}</h2>
+    </div>
+
+    <div class="result-box">
+        <h3>Weekly</h3>
+        <h2>{{ weekly }}</h2>
+    </div>
+
+    <div class="result-box">
+        <h3>Monthly</h3>
+        <h2>{{ monthly }}</h2>
+    </div>
+
+</div>
+{% endif %}
+
+</main>
+
+</body>
+</html>
