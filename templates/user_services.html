@@ -17,7 +17,7 @@
 </head>
 <body>
     <aside class="sidebar">
-        <h2 style="color: var(--primary);">SASS PRO</h2>
+        <h2 style="color: var(--primary);">SASS USER</h2>
         <a href="/user_dashboard" class="nav-link"><i class="fas fa-calendar-alt"></i> My Bookings</a>
         <a href="/user_services" class="nav-link active"><i class="fas fa-th-list"></i> All Services</a>
         <a href="/logout" class="nav-link" style="margin-top:auto; color:#ff6b6b;"><i class="fas fa-sign-out-alt"></i> Logout</a>
@@ -30,7 +30,9 @@
                 <small style="color: #94a3b8;">{{ s.category }}</small>
                 <h3>{{ s.service_name }}</h3>
                 <div style="font-size: 1.5rem; font-weight: 800;">${{ s.price }}</div>
-                <a href="/book" class="btn-book">Select Service</a>
+                <a href="/book?service={{ s.service_id }}" class="btn-book">
+                    Select Service
+                </a>
             </div>
             {% endfor %}
         </div>

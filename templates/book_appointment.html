@@ -1,6 +1,9 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
+    <meta charset="UTF-8">
+    <title>Book Appointment</title>
+
     <style>
         body {
             background: #0a192f;
@@ -55,6 +58,16 @@
             color: #94a3b8;
             text-decoration: none;
         }
+
+        .error {
+            background: rgba(255, 107, 107, 0.1);
+            border: 1px solid #ff6b6b;
+            color: #ff6b6b;
+            padding: 10px;
+            border-radius: 8px;
+            margin-bottom: 15px;
+            text-align: center;
+        }
     </style>
 </head>
 
@@ -63,6 +76,12 @@
 <div class="form-card">
     <h2>{{ 'Edit' if appt else 'Book' }} Appointment</h2>
 
+    {% if error %}
+    <div class="error">
+        {{ error }}
+    </div>
+    {% endif %}
+
     <form method="POST">
 
         <!-- SERVICE -->
@@ -70,7 +89,9 @@
         <select name="service" required>
             {% for id, s in services.items() %}
             <option value="{{ s.service_id }}"
-                {% if appt and appt.service == s.service_id %}selected{% endif %}>
+                {% if (appt and appt.service == s.service_id) or (selected_service == s.service_id) %}
+                    selected
+                {% endif %}>
                 {{ s.service_name }}
             </option>
             {% endfor %}
@@ -78,11 +99,17 @@
 
         <!-- DATE -->
         <label>Date</label>
-        <input type="date" name="date" value="{{ appt.date if appt }}" required>
+        <input type="date" name="date" value="{{ appt.date if appt else '' }}" required>
 
         <!-- TIME -->
         <label>Time</label>
-        <input type="time" name="time" value="{{ appt.time if appt }}" required>
+        <input type="time" name="time" value="{{ appt.time if appt else '' }}" required>
+
+        <!-- ✅ ADDRESS -->
+        <label>Address</label>
+        <input type="text" name="address"
+               value="{{ appt.address if appt else '' }}"
+               placeholder="Enter your address" required>
 
         <!-- SUBMIT -->
         <button type="submit" class="btn-submit">

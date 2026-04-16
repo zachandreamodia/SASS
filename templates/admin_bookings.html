@@ -1,56 +1,186 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
+    <meta charset="UTF-8">
+    <title>Admin | Bookings</title>
+
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+
     <style>
-        :root { --primary: #4dabf7; --bg: #0a192f; --glass: rgba(255,255,255,0.05); --border: rgba(255,255,255,0.1); }
-        body { background: var(--bg); color: white; font-family: 'Inter', sans-serif; display: flex; margin: 0; }
-        .sidebar { width: 280px; height: 100vh; background: rgba(0,0,0,0.4); padding: 30px 20px; border-right: 1px solid var(--border); position: fixed; }
-        .nav-link { display: flex; align-items: center; gap: 15px; padding: 12px 15px; color: #94a3b8; text-decoration: none; border-radius: 10px; margin-bottom: 10px; }
-        .nav-link.active { background: var(--glass); color: var(--primary); }
-        .main { margin-left: 280px; flex: 1; padding: 40px; }
-        .table-container { background: var(--glass); padding: 25px; border-radius: 20px; border: 1px solid var(--border); }
-        table { width: 100%; border-collapse: collapse; }
-        th { text-align: left; color: var(--primary); border-bottom: 1px solid var(--border); padding-bottom: 15px; }
-        td { padding: 20px 0; border-bottom: 1px solid rgba(255,255,255,0.05); }
-        .user-tag { background: rgba(77, 171, 247, 0.1); color: var(--primary); padding: 4px 10px; border-radius: 5px; font-weight: 600; }
+        :root {
+            --primary: #4dabf7;
+            --bg: #0a192f;
+            --glass: rgba(255,255,255,0.05);
+            --border: rgba(255,255,255,0.1);
+        }
+
+        body {
+            background: var(--bg);
+            color: white;
+            font-family: 'Inter', sans-serif;
+            display: flex;
+            margin: 0;
+        }
+
+        .sidebar {
+            width: 280px;
+            height: 100vh;
+            background: rgba(0,0,0,0.4);
+            padding: 30px 20px;
+            border-right: 1px solid var(--border);
+            display: flex;
+            flex-direction: column;
+        }
+
+        .nav-link {
+            display: flex;
+            gap: 15px;
+            padding: 12px;
+            color: #94a3b8;
+            text-decoration: none;
+            border-radius: 10px;
+            margin-bottom: 10px;
+        }
+
+        .nav-link.active {
+            background: var(--glass);
+            color: var(--primary);
+        }
+
+        .main {
+            flex: 1;
+            padding: 40px;
+        }
+
+        .card {
+            background: var(--glass);
+            padding: 25px;
+            border-radius: 20px;
+            border: 1px solid var(--border);
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+
+        th {
+            text-align: left;
+            color: var(--primary);
+            padding-bottom: 10px;
+        }
+
+        td {
+            padding: 12px 0;
+            border-bottom: 1px solid rgba(255,255,255,0.05);
+        }
+
+        .user-tag {
+            background: rgba(77,171,247,0.1);
+            color: var(--primary);
+            padding: 4px 10px;
+            border-radius: 5px;
+        }
     </style>
 </head>
+
 <body>
-    <aside class="sidebar">
-        <h2 style="color: var(--primary);">SASS ADMIN</h2>
-        <a href="/admin" class="nav-link"><i class="fas fa-th-large"></i> Dashboard</a>
-        <a href="/admin/bookings" class="nav-link active"><i class="fas fa-book"></i> User Bookings</a>
-        <a href="/admin/report" class="nav-link"><i class="fas fa-chart-bar"></i> Reports</a>
-        <a href="/logout" class="nav-link" style="margin-top:auto; color:#ff6b6b;"><i class="fas fa-sign-out-alt"></i> Logout</a>
-    </aside>
 
-    <main class="main">
-        <h1>Customer Appointments</h1>
-        <p style="color: #94a3b8; margin-bottom: 30px;">Manage all incoming client requests.</p>
+<!-- ✅ SIDEBAR -->
+<aside class="sidebar">
+    <h2 style="color: var(--primary);">SASS ADMIN</h2>
 
-        <div class="table-container">
-            <table>
-                <thead>
-                    <tr><th>Customer</th><th>Service Requested</th><th>Date & Time</th><th>Status</th><th>Actions</th></tr>
-                </thead>
-                <tbody>
-                    {% for id, appt in appointments.items() %}
-                    <tr>
-                        <td><span class="user-tag">{{ appt.user }}</span></td>
-                        <td><strong>{{ appt.service }}</strong></td>
-                        <td>{{ appt.date }} at {{ appt.time }}</td>
-                        <td style="color: #4dabf7;">{{ appt.status }}</td>
-                        <td>
-                            <a href="/delete/{{ id }}" style="color:#ff6b6b;" onclick="return confirm('Remove booking?')"><i class="fas fa-trash-alt"></i></a>
-                        </td>
-                    </tr>
-                    {% else %}
-                    <tr><td colspan="5" style="text-align:center; padding: 40px; color: #94a3b8;">No bookings found in the system.</td></tr>
-                    {% endfor %}
-                </tbody>
-            </table>
-        </div>
-    </main>
+    <a href="/admin" class="nav-link">
+        <i class="fas fa-th-large"></i> Dashboard
+    </a>
+
+    <a href="/admin/bookings" class="nav-link active">
+        <i class="fas fa-book"></i> User Bookings
+    </a>
+
+    <a href="/admin/report" class="nav-link">
+        <i class="fas fa-chart-bar"></i> Reports
+    </a>
+
+    <!-- ✅ LOGOUT FIXED POSITION -->
+    <a href="/logout" class="nav-link" style="margin-top:auto; color:#ff6b6b;">
+        <i class="fas fa-sign-out-alt"></i> Logout
+    </a>
+</aside>
+
+<!-- ✅ MAIN -->
+<main class="main">
+    <h1>Customer Appointments</h1>
+
+    <div class="card">
+        <table>
+            <thead>
+                <tr>
+                    <th>User</th>
+                    <th>Service</th>
+                    <th>Date & Time</th>
+                    <th>Address</th>
+                    <th>Status</th>
+                    <th>Actions</th>
+                </tr>
+            </thead>
+
+            <tbody>
+                {% for id, appt in appointments.items() %}
+                <tr>
+
+                    <!-- USER -->
+                    <td>
+                        <span class="user-tag">{{ appt.user }}</span>
+                    </td>
+
+                    <!-- SERVICE NAME (FIXED) -->
+                    <td>
+                        {{ services[appt.service].service_name }}
+                    </td>
+
+                    <!-- DATE -->
+                    <td>
+                        {{ appt.date }} @ {{ appt.time }}
+                    </td>
+
+                    <!-- ADDRESS -->
+                    <td>
+                        {{ appt.address if appt.address else "N/A" }}
+                    </td>
+
+                    <!-- STATUS -->
+                    <td style="color:#4dabf7;">
+                        {{ appt.status }}
+                    </td>
+
+                    <!-- ACTIONS -->
+                    <td>
+                        {% if appt.status == "Pending" %}
+                            <a href="/admin/update_status/{{ id }}/Confirmed" style="color:#51cf66;">✔</a>
+                            <a href="/admin/update_status/{{ id }}/Declined" style="color:#ff6b6b; margin-left:10px;">✖</a>
+
+                        {% elif appt.status == "Confirmed" %}
+                            <a href="/admin/update_status/{{ id }}/Completed" style="color:#4dabf7;">✔ Done</a>
+
+                        {% else %}
+                            <span>{{ appt.status }}</span>
+                        {% endif %}
+                    </td>
+
+                </tr>
+                {% else %}
+                <tr>
+                    <td colspan="6" style="text-align:center; color:#94a3b8;">
+                        No bookings found
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+
+        </table>
+    </div>
+</main>
+
 </body>
 </html>

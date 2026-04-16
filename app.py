@@ -85,42 +85,40 @@ def admin_report():
     if session.get("role") != "admin":
         return redirect(url_for("login"))
 
-    selected_service = request.form.get("service")
+    selected = None
+    daily = weekly = monthly = yearly = 0
 
-    today = datetime.today()
+    today = datetime.today().date()
+    week_ago = today - timedelta(days=7)
+    month_ago = today - timedelta(days=30)
+    year_ago = today - timedelta(days=365)
 
-    daily = 0
-    weekly = 0
-    monthly = 0
+    if request.method == "POST":
+        selected = request.form.get("service")
 
-    for appt in appointments.values():
-        try:
-            appt_date = datetime.strptime(appt["date"], "%Y-%m-%d")
-        except:
-            continue
+        for appt in appointments.values():
+            appt_date = datetime.strptime(appt["date"], "%Y-%m-%d").date()
 
-        # FILTER BY SELECTED SERVICE
-        if selected_service and appt["service"] != selected_service:
-            continue
+            # ✅ FIX: compare using service_id
+            if appt["service"] == selected:
+                if appt_date == today:
+                    daily += 1
+                if appt_date >= week_ago:
+                    weekly += 1
+                if appt_date >= month_ago:
+                    monthly += 1
+                if appt_date >= year_ago:
+                    yearly += 1
 
-        # DAILY
-        if appt_date.date() == today.date():
-            daily += 1
-
-        # WEEKLY (last 7 days)
-        if today - timedelta(days=7) <= appt_date <= today:
-            weekly += 1
-
-        # MONTHLY
-        if appt_date.month == today.month and appt_date.year == today.year:
-            monthly += 1
-
-    return render_template("admin_report.html",
-                           services=services,
-                           selected_service=selected_service,
-                           daily=daily,
-                           weekly=weekly,
-                           monthly=monthly)
+    return render_template(
+        "admin_report.html",
+        services=services,
+        selected=selected,
+        daily=daily,
+        weekly=weekly,
+        monthly=monthly,
+        yearly=yearly
+    )
 
 @app.route("/edit_service/<id>", methods=["GET", "POST"])
 def edit_service(id):
@@ -129,7 +127,6 @@ def edit_service(id):
 
     service = services.get(id)
 
-    # If service not found
     if not service:
         return redirect(url_for("admin"))
 
@@ -162,14 +159,43 @@ def admin_bookings():
     if session.get("role") != "admin": 
         return redirect(url_for("login"))
     # Bookings page only shows the user appointments
-    return render_template("admin_bookings.html", appointments=appointments)
+    return render_template(
+    "admin_bookings.html",
+    appointments=appointments,
+    services=services
+)
+
+from datetime import datetime
 
 @app.route("/user_dashboard")
 def user_dashboard():
-    if "username" not in session: return redirect(url_for("login"))
-    # Filter appointments for the logged-in user
-    user_appts = {k: v for k, v in appointments.items() if v['user'] == session['username']}
-    return render_template("user.html", appointments=user_appts)
+    if "username" not in session:
+        return redirect(url_for("login"))
+
+    user_appts = {}
+
+    for k, v in appointments.items():
+        if v["user"] == session["username"]:
+
+            appt_date = datetime.strptime(v["date"], "%Y-%m-%d").date()
+            today = datetime.today().date()
+
+            diff = (appt_date - today).days
+
+            # Lock if 1 day or less
+            if diff <= 1:
+                v["locked"] = True
+            else:
+                v["locked"] = False
+
+            user_appts[k] = v
+
+    # ✅ IMPORTANT: pass services here
+    return render_template(
+        "user.html",
+        appointments=user_appts,
+        services=services
+    )
 
 @app.route("/user_services")
 def user_services():
@@ -181,41 +207,139 @@ def book_appointment():
     if "username" not in session:
         return redirect(url_for("login"))
 
+    selected_service = request.args.get("service")
+
     if request.method == "POST":
 
-        # ✅ ADD THIS LINE (THIS FIXES YOUR ERROR)
+        selected_service = request.form.get("service")
+        selected_date = request.form.get("date")
+        selected_time = request.form.get("time")
+        address = request.form.get("address")  # ✅ NEW
+
+        now = datetime.now()
+
+        try:
+            selected_datetime = datetime.strptime(
+                selected_date + " " + selected_time, "%Y-%m-%d %H:%M"
+            )
+        except:
+            return render_template(
+                "book_appointment.html",
+                services=services,
+                selected_service=selected_service,
+                error="Invalid date/time"
+            )
+
+        # ❌ Prevent past booking
+        if selected_datetime < now:
+            return render_template(
+                "book_appointment.html",
+                services=services,
+                selected_service=selected_service,
+                error="Cannot book past date/time"
+            )
+
+        # ❌ Limit 3 bookings per service per day
+        count = 0
+        for appt in appointments.values():
+            if appt["service"] == selected_service and appt["date"] == selected_date:
+                count += 1
+
+        if count >= 3:
+            return render_template(
+                "book_appointment.html",
+                services=services,
+                selected_service=selected_service,
+                error="Service fully booked (max 3 per day)"
+            )
+
+        # ❌ Prevent same time duplicate
+        for appt in appointments.values():
+            if (
+                appt["service"] == selected_service and
+                appt["date"] == selected_date and
+                appt["time"] == selected_time
+            ):
+                return render_template(
+                    "book_appointment.html",
+                    services=services,
+                    selected_service=selected_service,
+                    error="Time slot already taken"
+                )
+
+        # ✅ SAVE
         appt_id = str(uuid.uuid4())[:8]
 
         appointments[appt_id] = {
             "id": appt_id,
             "user": session["username"],
-            "service": request.form.get("service"),
-            "date": request.form.get("date"),
-            "time": request.form.get("time"),
-            "status": "Confirmed"
+            "service": selected_service,
+            "date": selected_date,
+            "time": selected_time,
+            "address": address,   # ✅ NEW
+            "status": "Pending"
         }
 
         return redirect(url_for("user_dashboard"))
 
-    return render_template("book_appointment.html", services=services)
-
+    return render_template(
+        "book_appointment.html",
+        services=services,
+        selected_service=selected_service
+    )
 
 @app.route("/edit/<id>", methods=["GET", "POST"])
 def edit_appointment(id):
+    if "username" not in session:
+        return redirect(url_for("login"))
+
     appt = appointments.get(id)
+
+    if not appt:
+        return redirect(url_for("user_dashboard"))
+
     if request.method == "POST":
         appt.update({
             "service": request.form.get("service"),
             "date": request.form.get("date"),
-            "time": request.form.get("time")
+            "time": request.form.get("time"),
+            "address": request.form.get("address")  # ✅ NEW
         })
+
         return redirect(url_for("user_dashboard"))
-    return render_template("book_appointment.html", appt=appt, services=services)
+
+    return render_template(
+        "book_appointment.html",
+        appt=appt,
+        services=services
+    )
 
 @app.route("/delete/<id>")
 def delete_appointment(id):
-    appointments.pop(id, None)
+    # 🔒 Check if user is logged in
+    if "username" not in session:
+        return redirect(url_for("login"))
+
+    # 📌 Get the appointment
+    appt = appointments.get(id)
+
+    # ✅ Only allow owner to delete their booking
+    if appt and appt["user"] == session["username"]:
+        appointments.pop(id)
+
     return redirect(url_for("user_dashboard"))
+
+@app.route("/admin/update_status/<id>/<status>")
+def update_status(id, status):
+    if session.get("role") != "admin":
+        return redirect(url_for("login"))
+
+    appt = appointments.get(id)
+
+    if appt:
+        appt["status"] = status
+
+    return redirect(url_for("admin_bookings"))
 
 @app.route("/logout")
 def logout():

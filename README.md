@@ -73,3 +73,22 @@
 ### Displays an error message (“Invalid username or password”) for failed login attempts
 ### Ensures system security by allowing only authorized users to access the system
 ### Provides organized navigation by directing users based on their roles
+
+## Module 2- User Appointment Management
+### This module allows users to manage their appointments, including booking, viewing, updating, and deleting scheduled services. It ensures proper validation and controlled access to maintain an organized scheduling system.
+
+### Allows logged-in users to book appointments by selecting a service, date, time, and address
+### Uses a route that supports both GET and POST methods for displaying and processing the booking form (/book)
+### Uses a route that supports both GET and POST methods for displaying and processing the booking form (/book)
+### Displays the appointment booking page with available services and no initial error message
+### Retrieves user input (service, date, time, and address) from the submitted form
+### Validates user input to ensure correct date and time format
+### Prevents users from booking appointments in the past
+### Limits appointment bookings to a maximum of three per service per day
+### Prevents duplicate bookings for the same service, date, and time
+### Automatically generates a unique appointment ID for each booking
+### Stores appointment details including user, service, date, time, address, and status
+### Displays only the logged-in user’s appointments in the user dashboard
+### Locks appointments that are one day or less away to prevent editing or deletion
+### Allows users to edit their existing appointments (if not locked)
+### Allows users to delete their own appointments securely
