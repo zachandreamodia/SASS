@@ -1,4 +1,4 @@
-from flask import Flask, render_template, request, redirect, url_for, session
+from flask import Flask, flash, render_template, request, redirect, url_for, session
 from datetime import datetime, timedelta
 import uuid
 
@@ -39,22 +39,21 @@ def login():
         if username in USER:
             if USER[username][0] == password:
 
-                # ✅ SET SESSION (VERY IMPORTANT)
                 session["username"] = username
                 session["role"] = USER[username][1]
 
-                # ✅ REDIRECT PROPERLY
+                flash("Login successful!", "success")
+
                 if USER[username][1] == 'admin':
                     return redirect(url_for("admin"))
                 else:
                     return redirect(url_for("user_dashboard"))
-
             else:
-                return render_template("login.html", message="Invalid username or password")
+                flash("Invalid username or password", "error")
         else:
-            return render_template("login.html", message="Invalid username or password")
+            flash("Invalid username or password", "error")
 
-    return render_template("login.html", message="")
+    return render_template("login.html")
 
 @app.route("/addservice", methods=["GET", "POST"])
 def addservice():
@@ -205,69 +204,74 @@ def user_services():
 @app.route("/book", methods=["GET", "POST"])
 def book_appointment():
     if "username" not in session:
+        flash("Please login first", "error")
         return redirect(url_for("login"))
 
     selected_service = request.args.get("service")
 
     if request.method == "POST":
-
         selected_service = request.form.get("service")
         selected_date = request.form.get("date")
         selected_time = request.form.get("time")
-        address = request.form.get("address")  # ✅ NEW
+        address = request.form.get("address")
 
-        now = datetime.now()
+        if not selected_service or not selected_date or not selected_time:
+            flash("All fields are required", "error")
+            return render_template(
+                "book_appointment.html",
+                services=services,
+                selected_service=selected_service
+            )
 
         try:
             selected_datetime = datetime.strptime(
                 selected_date + " " + selected_time, "%Y-%m-%d %H:%M"
             )
         except:
+            flash("Invalid date/time format", "error")
             return render_template(
                 "book_appointment.html",
                 services=services,
-                selected_service=selected_service,
-                error="Invalid date/time"
+                selected_service=selected_service
             )
 
-        # ❌ Prevent past booking
-        if selected_datetime < now:
+        if selected_datetime < datetime.now():
+            flash("Cannot book past date/time", "error")
             return render_template(
                 "book_appointment.html",
                 services=services,
-                selected_service=selected_service,
-                error="Cannot book past date/time"
+                selected_service=selected_service
             )
 
-        # ❌ Limit 3 bookings per service per day
+        # Max 3 per day
         count = 0
         for appt in appointments.values():
             if appt["service"] == selected_service and appt["date"] == selected_date:
                 count += 1
 
         if count >= 3:
+            flash("Service fully booked (max 3 per day)", "error")
             return render_template(
                 "book_appointment.html",
                 services=services,
-                selected_service=selected_service,
-                error="Service fully booked (max 3 per day)"
+                selected_service=selected_service
             )
 
-        # ❌ Prevent same time duplicate
+        # Duplicate time
         for appt in appointments.values():
             if (
                 appt["service"] == selected_service and
                 appt["date"] == selected_date and
                 appt["time"] == selected_time
             ):
+                flash("Time slot already taken", "error")
                 return render_template(
                     "book_appointment.html",
                     services=services,
-                    selected_service=selected_service,
-                    error="Time slot already taken"
+                    selected_service=selected_service
                 )
 
-        # ✅ SAVE
+        # Save
         appt_id = str(uuid.uuid4())[:8]
 
         appointments[appt_id] = {
@@ -276,12 +280,14 @@ def book_appointment():
             "service": selected_service,
             "date": selected_date,
             "time": selected_time,
-            "address": address,   # ✅ NEW
+            "address": address,
             "status": "Pending"
         }
 
+        flash("Appointment booked successfully!", "success")
         return redirect(url_for("user_dashboard"))
 
+    # ✅ IMPORTANT FIX HERE
     return render_template(
         "book_appointment.html",
         services=services,
@@ -291,42 +297,87 @@ def book_appointment():
 @app.route("/edit/<id>", methods=["GET", "POST"])
 def edit_appointment(id):
     if "username" not in session:
+        flash("Please login first", "error")
         return redirect(url_for("login"))
 
     appt = appointments.get(id)
 
     if not appt:
+        flash("Appointment not found", "error")
+        return redirect(url_for("user_dashboard"))
+
+    if appt["user"] != session["username"]:
+        flash("Unauthorized action", "error")
+        return redirect(url_for("user_dashboard"))
+
+    appt_date = datetime.strptime(appt["date"], "%Y-%m-%d").date()
+    if (appt_date - datetime.today().date()).days <= 1:
+        flash("Cannot edit locked appointment", "error")
         return redirect(url_for("user_dashboard"))
 
     if request.method == "POST":
+        selected_service = request.form.get("service")
+        selected_date = request.form.get("date")
+        selected_time = request.form.get("time")
+        address = request.form.get("address")
+
+        if not selected_service or not selected_date or not selected_time:
+            flash("All fields are required", "error")
+            return render_template("book_appointment.html", appt=appt, services=services)
+
+        try:
+            selected_datetime = datetime.strptime(
+                selected_date + " " + selected_time, "%Y-%m-%d %H:%M"
+            )
+        except:
+            flash("Invalid date/time format", "error")
+            return render_template("book_appointment.html", appt=appt, services=services)
+
+        if selected_datetime < datetime.now():
+            flash("Cannot select past date/time", "error")
+            return render_template("book_appointment.html", appt=appt, services=services)
+
+        for key, a in appointments.items():
+            if key != id and a["service"] == selected_service and a["date"] == selected_date and a["time"] == selected_time:
+                flash("Time slot already taken", "error")
+                return render_template("book_appointment.html", appt=appt, services=services)
+
         appt.update({
-            "service": request.form.get("service"),
-            "date": request.form.get("date"),
-            "time": request.form.get("time"),
-            "address": request.form.get("address")  # ✅ NEW
+            "service": selected_service,
+            "date": selected_date,
+            "time": selected_time,
+            "address": address
         })
 
+        flash("Appointment updated successfully!", "success")
         return redirect(url_for("user_dashboard"))
 
-    return render_template(
-        "book_appointment.html",
-        appt=appt,
-        services=services
-    )
+    return render_template("book_appointment.html", appt=appt, services=services)
 
 @app.route("/delete/<id>")
 def delete_appointment(id):
-    # 🔒 Check if user is logged in
     if "username" not in session:
+        flash("Please login first", "error")
         return redirect(url_for("login"))
 
-    # 📌 Get the appointment
     appt = appointments.get(id)
 
-    # ✅ Only allow owner to delete their booking
-    if appt and appt["user"] == session["username"]:
-        appointments.pop(id)
+    if not appt:
+        flash("Appointment not found", "error")
+        return redirect(url_for("user_dashboard"))
 
+    if appt["user"] != session["username"]:
+        flash("Unauthorized action", "error")
+        return redirect(url_for("user_dashboard"))
+
+    appt_date = datetime.strptime(appt["date"], "%Y-%m-%d").date()
+    if (appt_date - datetime.today().date()).days <= 1:
+        flash("Cannot delete locked appointment", "error")
+        return redirect(url_for("user_dashboard"))
+
+    appointments.pop(id)
+
+    flash("Appointment deleted successfully!", "success")
     return redirect(url_for("user_dashboard"))
 
 @app.route("/admin/update_status/<id>/<status>")

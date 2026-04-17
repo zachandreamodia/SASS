@@ -89,9 +89,12 @@
         <select name="service" required>
             {% for id, s in services.items() %}
             <option value="{{ s.service_id }}"
-                {% if (appt and appt.service == s.service_id) or (selected_service == s.service_id) %}
-                    selected
-                {% endif %}>
+                {% if appt %}
+                    {% if appt.service == s.service_id %}selected{% endif %}
+                {% else %}
+                    {% if selected_service and selected_service == s.service_id %}selected{% endif %}
+                {% endif %}
+            >
                 {{ s.service_name }}
             </option>
             {% endfor %}

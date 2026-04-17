@@ -269,7 +269,15 @@
         <h2>Login</h2>
         <p class="subtitle">Access your SASS Dashboard</p>
 
-        <div class="message">{{message}}</div>
+        {% with messages = get_flashed_messages(with_categories=true) %}
+  {% if messages %}
+    {% for category, message in messages %}
+      <div class="alert {{ category }}">
+        {{ message }}
+      </div>
+    {% endfor %}
+  {% endif %}
+{% endwith %}
 
         <form method="POST" action="/login">
             <div class="input-group">
