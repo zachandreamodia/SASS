@@ -1,41 +1,48 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
-    <style>
-        :root { --primary: #4dabf7; --bg: #0a192f; --glass: rgba(255, 255, 255, 0.05); --border: rgba(255, 255, 255, 0.1); }
-        body { background: var(--bg); color: white; font-family: 'Inter', sans-serif; display: flex; margin: 0; }
-        .sidebar { width: 280px; height: 100vh; background: rgba(0,0,0,0.4); padding: 30px 20px; border-right: 1px solid var(--border); }
-        .nav-link { display: flex; align-items: center; gap: 15px; padding: 12px 15px; color: #94a3b8; text-decoration: none; border-radius: 10px; margin-bottom: 10px; }
-        .active { background: var(--glass); color: var(--primary); }
-        .main { flex: 1; padding: 40px; }
-        .grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(250px, 1fr)); gap: 20px; }
-        .service-card { background: var(--glass); border: 1px solid var(--border); padding: 25px; border-radius: 15px; transition: 0.3s; }
-        .service-card:hover { transform: translateY(-5px); border-color: var(--primary); }
-        .btn-book { background: var(--primary); color: white; display: block; text-align: center; padding: 10px; margin-top: 15px; text-decoration: none; border-radius: 8px; font-weight: bold; }
-    </style>
-</head>
-<body>
-    <aside class="sidebar">
-        <h2 style="color: var(--primary);">SASS USER</h2>
-        <a href="/user_dashboard" class="nav-link"><i class="fas fa-calendar-alt"></i> My Bookings</a>
-        <a href="/user_services" class="nav-link active"><i class="fas fa-th-list"></i> All Services</a>
-        <a href="/logout" class="nav-link" style="margin-top:auto; color:#ff6b6b;"><i class="fas fa-sign-out-alt"></i> Logout</a>
-    </aside>
-    <main class="main">
-        <h1>Select a Service</h1>
-        <div class="grid">
-            {% for id, s in services.items() %}
-            <div class="service-card">
-                <small style="color: #94a3b8;">{{ s.category }}</small>
-                <h3>{{ s.service_name }}</h3>
-                <div style="font-size: 1.5rem; font-weight: 800;">${{ s.price }}</div>
-                <a href="/book?service={{ s.service_id }}" class="btn-book">
-                    Select Service
-                </a>
-            </div>
-            {% endfor %}
+{% extends "layout.html" %}
+{% block title %}Available Services{% endblock %}
+
+{% block content %}
+<div style="margin-bottom: 30px;">
+    <h1>Select a Service</h1>
+    <p style="color: var(--text-muted);">Choose a professional service to get started with your booking.</p>
+</div>
+
+<div style="display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: 25px;">
+    {% for id, s in services.items() %}
+    <div class="card" style="display: flex; flex-direction: column; justify-content: space-between; transition: transform 0.3s ease; border: 1px solid var(--border);" 
+         onmouseover="this.style.borderColor='var(--primary)'" 
+         onmouseout="this.style.borderColor='var(--border)'">
+        
+        <div>
+            <small style="color: var(--text-muted); text-transform: uppercase; letter-spacing: 1px; font-weight: bold;">
+                {{ s.category }}
+            </small>
+            
+            <h3 style="margin: 10px 0; font-size: 1.4rem;">{{ s.service_name }}</h3>
+            
+            <p style="color: var(--text-muted); font-size: 0.9rem; line-height: 1.5;">
+                Professional quality {{ s.category|lower }} service scheduled at your convenience.
+            </p>
         </div>
-    </main>
-</body>
-</html>
+        
+        <div style="margin-top: 25px; display: flex; justify-content: space-between; align-items: center;">
+            <span style="font-size: 1.5rem; font-weight: bold; color: var(--primary);">
+                ${{ s.price }}
+            </span>
+            
+            <a href="/book?service={{ s.service_name }}" class="btn-primary">
+    Book Now
+</a>
+        </div>
+    </div>
+    {% endfor %}
+</div>
+
+{% if not services %}
+<div class="card" style="text-align: center; padding: 50px;">
+    <i class="fas fa-info-circle" style="font-size: 2rem; color: var(--text-muted); margin-bottom: 15px;"></i>
+    <p style="color: var(--text-muted);">No services are currently available. Please check back later.</p>
+</div>
+{% endif %}
+
+{% endblock %}

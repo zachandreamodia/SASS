@@ -1,176 +1,93 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
-    <style>
-        :root {
-            --primary: #4dabf7;
-            --bg: #0a192f;
-            --glass: rgba(255, 255, 255, 0.05);
-            --border: rgba(255, 255, 255, 0.1);
-        }
+{% extends "layout.html" %}
+{% block title %}My Appointments{% endblock %}
 
-        body {
-            background: var(--bg);
-            color: white;
-            font-family: 'Inter', sans-serif;
-            display: flex;
-            margin: 0;
-            min-height: 100vh;
-        }
-
-        .sidebar {
-            width: 280px;
-            background: rgba(0,0,0,0.4);
-            padding: 30px 20px;
-            border-right: 1px solid var(--border);
-            display: flex;
-            flex-direction: column;
-        }
-
-        .nav-link {
-            display: flex;
-            align-items: center;
-            gap: 15px;
-            padding: 12px 15px;
-            color: #94a3b8;
-            text-decoration: none;
-            border-radius: 10px;
-            margin-bottom: 10px;
-        }
-
-        .nav-link.active {
-            background: var(--glass);
-            color: var(--primary);
-        }
-
-        .main {
-            flex: 1;
-            padding: 40px;
-        }
-
-        .card {
-            background: var(--glass);
-            border: 1px solid var(--border);
-            padding: 25px;
-            border-radius: 15px;
-        }
-
-        table {
-            width: 100%;
-            border-collapse: collapse;
-        }
-
-        th {
-            text-align: left;
-            color: var(--primary);
-            border-bottom: 1px solid var(--border);
-            padding-bottom: 10px;
-        }
-
-        td {
-            padding: 15px 0;
-            border-bottom: 1px solid rgba(255,255,255,0.05);
-        }
-
-        .action-btn {
-            color: #94a3b8;
-            margin-left: 10px;
-            text-decoration: none;
-        }
-    </style>
-</head>
-
-<body>
-
-    <aside class="sidebar">
-        <h2 style="color: var(--primary);">SASS USER</h2>
-
-        <a href="/user_dashboard" class="nav-link active">
-            <i class="fas fa-calendar-alt"></i> My Bookings
-        </a>
-
-        <a href="/user_services" class="nav-link">
-            <i class="fas fa-th-list"></i> All Services
-        </a>
-
-        <a href="/logout" class="nav-link" style="color:#ff6b6b;">
-            <i class="fas fa-sign-out-alt"></i> Logout
-        </a>
-    </aside>
-
-    <main class="main">
-        <h1>My Bookings</h1>
-
-        <div class="card">
-            <table>
-                <thead>
-                    <tr>
-                        <th>Date</th>
-                        <th>Service</th>
-                        <th>Address</th> <!-- ✅ NEW -->
-                        <th>Status</th>
-                        <th>Actions</th>
-                    </tr>
-                </thead>
-
-                <tbody>
-                    {% for id, appt in appointments.items() %}
-                    <tr>
-
-                        <td>{{ appt.date }} @ {{ appt.time }}</td>
-
-                        <td>
-                            {{ services[appt.service].service_name }}
-                        </td>
-
-                        <!-- ✅ ADDRESS -->
-                        <td>
-                            {% if appt.address %}
-                                {{ appt.address }}
-                            {% else %}
-                                <span style="color: gray;">No address</span>
-                            {% endif %}
-                        </td>
-
-                        <!-- STATUS -->
-                        <td>
-                            {% if appt.status == "Pending" %}
-                                <span style="color:#ffd43b;">Pending</span>
-                            {% elif appt.status == "Confirmed" %}
-                                <span style="color:#51cf66;">Confirmed</span>
-                            {% elif appt.status == "Declined" %}
-                                <span style="color:#ff6b6b;">Declined</span>
-                            {% else %}
-                                <span>{{ appt.status }}</span>
-                            {% endif %}
-                        </td>
-
-                        <!-- ACTIONS -->
-                        <td>
-                            {% if not appt.locked %}
-                                <a href="/edit/{{ id }}" class="action-btn">
-                                    <i class="fas fa-edit"></i>
-                                </a>
-
-                                <a href="/delete/{{ id }}"
-                                   class="action-btn"
-                                   style="color:#ff6b6b"
-                                   onclick="return confirm('Cancel booking?')">
-                                    <i class="fas fa-trash"></i>
-                                </a>
-                            {% else %}
-                                <span style="color: gray;">Locked</span>
-                            {% endif %}
-                        </td>
-
-                    </tr>
-                    {% endfor %}
-                </tbody>
-
-            </table>
+{% block content %}
+<div style="max-width: 1100px; margin: 0 auto; padding: 20px;">
+    
+    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 30px;">
+        <div>
+            <h1 style="margin: 0; font-size: 1.8rem; color: white;">My Appointments</h1>
+            <p style="color: var(--text-muted); margin-top: 5px;">Track and manage your scheduled services.</p>
         </div>
-    </main>
+        <a href="/user_services" class="btn-primary" style="text-decoration: none; display: flex; align-items: center; gap: 8px;">
+            <i class="fas fa-plus"></i> Book Another
+        </a>
+    </div>
 
-</body>
-</html>
+    <div class="card" style="padding: 0; overflow: hidden; border: 1px solid var(--border); background: rgba(255,255,255,0.02);">
+        <table style="width: 100%; border-collapse: collapse; text-align: left;">
+            <thead>
+                <tr style="background: rgba(255,255,255,0.05); color: var(--text-muted); font-size: 0.8rem; text-transform: uppercase; letter-spacing: 1px;">
+                    <th style="padding: 20px;">Service</th>
+                    <th style="padding: 20px;">Date & Time</th>
+                    <th style="padding: 20px;">Status</th>
+                    <th style="padding: 20px; text-align: center;">Action</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for id, appt in appointments.items() if appt.user == session['username'] %}
+                <tr style="border-bottom: 1px solid var(--border); transition: background 0.2s;" onmouseover="this.style.background='rgba(255,255,255,0.02)'" onmouseout="this.style.background='transparent'">
+                    
+                    <td style="padding: 20px;">
+                        <strong style="color: var(--primary);">
+                            {% if appt.service_id in services %}
+                                {{ services[appt.service_id].service_name }}
+                            {% else %}
+                                <span style="color: var(--text-muted); font-weight: normal;">Service Not Found</span>
+                            {% endif %}
+                        </strong>
+                    </td>
+
+                    <td style="padding: 20px; font-size: 0.9rem;">
+                        <i class="far fa-calendar-alt" style="margin-right: 5px; color: var(--text-muted);"></i> {{ appt.date }} 
+                        <span style="color: var(--text-muted); margin: 0 5px;">@</span> 
+                        <i class="far fa-clock" style="margin-right: 5px; color: var(--text-muted);"></i> {{ appt.time }}
+                    </td>
+
+                    <td style="padding: 20px;">
+                        {% if appt.status == "Pending" %}
+                            <span style="color: #ffa94d; background: rgba(255, 169, 77, 0.1); padding: 4px 10px; border-radius: 20px; font-size: 0.75rem; border: 1px solid rgba(255, 169, 77, 0.3);">
+                                ● Pending
+                            </span>
+                        {% elif appt.status == "Confirmed" %}
+                            <span style="color: #51cf66; background: rgba(81, 207, 102, 0.1); padding: 4px 10px; border-radius: 20px; font-size: 0.75rem; border: 1px solid rgba(81, 207, 102, 0.3);">
+                                ● Confirmed
+                            </span>
+                        {% else %}
+                            <span style="color: #ff6b6b; background: rgba(255, 107, 107, 0.1); padding: 4px 10px; border-radius: 20px; font-size: 0.75rem; border: 1px solid rgba(255, 107, 107, 0.3);">
+                                ● {{ appt.status }}
+                            </span>
+                        {% endif %}
+                    </td>
+
+                    <td style="padding: 20px; text-align: center;">
+                        {# Lock check: Hide edit/delete if status is not Pending or if appt is explicitly locked #}
+                        {% if appt.status == "Pending" and not appt.locked %}
+                            <div style="display: flex; justify-content: center; gap: 15px;">
+                                <a href="/edit/{{ id }}" style="color: var(--primary); transition: transform 0.2s;" onmouseover="this.style.transform='scale(1.2)'" onmouseout="this.style.transform='scale(1)'">
+                                    <i class="fas fa-edit" title="Edit Booking"></i>
+                                </a>
+                                <a href="/delete/{{ id }}" style="color: #ff6b6b; transition: transform 0.2s;" onclick="return confirm('Cancel this booking permanently?')" onmouseover="this.style.transform='scale(1.2)'" onmouseout="this.style.transform='scale(1)'">
+                                    <i class="fas fa-trash-alt" title="Cancel Booking"></i>
+                                </a>
+                            </div>
+                        {% else %}
+                            <div style="color: var(--text-muted); font-size: 0.8rem;">
+                                <i class="fas fa-lock" style="margin-right: 4px;"></i> Locked
+                            </div>
+                        {% endif %}
+                    </td>
+                </tr>
+                {% else %}
+                <tr>
+                    <td colspan="4" style="text-align: center; color: var(--text-muted); padding: 60px;">
+                        <i class="fas fa-calendar-times" style="font-size: 2rem; display: block; margin-bottom: 10px; opacity: 0.5;"></i>
+                        No appointments found. <a href="/user_services" style="color: var(--primary);">Book your first service here.</a>
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</div>
+{% endblock %}

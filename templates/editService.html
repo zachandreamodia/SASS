@@ -1,0 +1,69 @@
+{% extends "layout.html" %}
+{% block content %}
+
+<div style="margin-bottom: 30px;">
+    <h1 style="margin: 0;">Edit Service: <span style="color: var(--primary);">{{ service.service_name }}</span></h1>
+    <p style="color: var(--text-muted);">Modify the pricing or category for this service.</p>
+</div>
+
+<div style="display: grid; grid-template-columns: 1.2fr 1fr; gap: 30px; align-items: start;">
+    
+    <div class="card" style="padding: 35px; border: 1px solid var(--border);">
+        <form action="/edit_service/{{ service.service_id }}" method="POST" style="display: flex; flex-direction: column; gap: 20px;">
+            
+            <div class="field-group">
+                <label style="display: block; font-size: 0.7rem; color: var(--text-muted); font-weight: bold; margin-bottom: 8px; text-transform: uppercase;">Service ID (Fixed)</label>
+                <input type="text" value="{{ service.service_id }}" disabled 
+                       style="width: 100%; padding: 12px 15px; background: rgba(255,255,255,0.02); border: 1px solid var(--border); border-radius: 8px; color: var(--text-muted); cursor: not-allowed;">
+            </div>
+
+            <div class="field-group">
+                <label style="display: block; font-size: 0.7rem; color: var(--primary); font-weight: bold; margin-bottom: 8px; text-transform: uppercase;">Service Name</label>
+                <input type="text" name="service_name" value="{{ service.service_name }}" required 
+                       style="width: 100%; padding: 12px 15px; background: rgba(255,255,255,0.05); border: 1px solid var(--border); border-radius: 8px; color: white; outline: none;">
+            </div>
+
+            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 15px;">
+                <div class="field-group">
+                    <label style="display: block; font-size: 0.7rem; color: var(--primary); font-weight: bold; margin-bottom: 8px; text-transform: uppercase;">Category</label>
+                    <select name="category" style="width: 100%; padding: 12px; background: rgba(255,255,255,0.05); border: 1px solid var(--border); border-radius: 8px; color: white; outline: none;">
+                        <option value="Cleaning" {% if service.category == 'Cleaning' %}selected{% endif %}>Cleaning</option>
+                        <option value="Repair" {% if service.category == 'Repair' %}selected{% endif %}>Repair</option>
+                        <option value="IT Support" {% if service.category == 'IT Support' %}selected{% endif %}>IT Support</option>
+                    </select>
+                </div>
+
+                <div class="field-group">
+                    <label style="display: block; font-size: 0.7rem; color: var(--primary); font-weight: bold; margin-bottom: 8px; text-transform: uppercase;">Price ($)</label>
+                    <input type="number" name="price" value="{{ service.price }}" step="0.01" min="0.01" required 
+                           style="width: 100%; padding: 12px 15px; background: rgba(255,255,255,0.05); border: 1px solid var(--border); border-radius: 8px; color: white; outline: none;">
+                </div>
+            </div>
+
+            <div style="display: flex; gap: 10px; margin-top: 15px;">
+                <button type="submit" class="btn-primary" style="flex: 2; padding: 14px; font-weight: bold; border: none; border-radius: 8px; cursor: pointer;">
+                    <i class="fas fa-save"></i> SAVE CHANGES
+                </button>
+                <a href="/admin" style="flex: 1; display: flex; align-items: center; justify-content: center; text-decoration: none; background: rgba(255,255,255,0.05); color: white; border-radius: 8px; border: 1px solid var(--border); font-size: 0.85rem;">
+                    Cancel
+                </a>
+            </div>
+        </form>
+    </div>
+
+    <div class="card" style="background: linear-gradient(135deg, rgba(77, 171, 247, 0.05), transparent); border: 1px solid var(--border);">
+        <h4 style="margin: 0 0 15px 0; color: var(--primary);">Service Summary</h4>
+        <div style="display: flex; flex-direction: column; gap: 10px; font-size: 0.9rem;">
+            <div style="display: flex; justify-content: space-between;">
+                <span style="color: var(--text-muted);">Current Status:</span>
+                <span style="color: #4cd137;">● Active</span>
+            </div>
+            <div style="display: flex; justify-content: space-between;">
+                <span style="color: var(--text-muted);">Total Bookings:</span>
+                <span>0</span>
+            </div>
+        </div>
+    </div>
+</div>
+
+{% endblock %}

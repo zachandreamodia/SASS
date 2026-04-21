@@ -1,36 +1,80 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <style>
-        :root { --primary: #4dabf7; --bg: #0a192f; --glass: rgba(255,255,255,0.05); --border: rgba(255,255,255,0.1); }
-        body { background: var(--bg); color: white; font-family: 'Inter', sans-serif; display: flex; justify-content: center; align-items: center; min-height: 100vh; margin: 0; }
-        .form-card { background: var(--glass); padding: 40px; border-radius: 24px; border: 1px solid var(--border); width: 100%; max-width: 400px; backdrop-filter: blur(10px); }
-        h2 { color: var(--primary); margin-bottom: 20px; }
-        label { display: block; margin-top: 15px; font-size: 0.85rem; color: #94a3b8; }
-        input { width: 100%; padding: 12px; margin-top: 5px; background: rgba(0,0,0,0.2); border: 1px solid var(--border); color: white; border-radius: 8px; box-sizing: border-box; }
-        .btn-submit { background: var(--primary); width: 100%; padding: 14px; border: none; color: white; font-weight: 800; border-radius: 8px; cursor: pointer; margin-top: 25px; transition: 0.3s; }
-        .btn-submit:hover { opacity: 0.9; transform: translateY(-2px); }
-    </style>
-</head>
-<body>
-    <div class="form-card">
-        <h2>New Service</h2>
-        <form action="/addservice" method="POST">
-            <label>Service ID</label>
-            <input type="text" name="service_id" placeholder="e.g. 5001" required>
+{% extends "layout.html" %}
+{% block content %}
 
-            <label>Service Name</label>
-            <input type="text" name="service_name" placeholder="e.g. Oil Change" required>
+<div style="margin-bottom: 30px;">
+    <h1 style="margin: 0;">Add New Service</h1>
+    <p style="color: var(--text-muted);">Expand your business catalog by adding a high-quality service offering.</p>
+</div>
 
-            <label>Category</label>
-            <input type="text" name="category" placeholder="e.g. Maintenance" required>
+<div style="display: grid; grid-template-columns: 1.2fr 1fr; gap: 30px; align-items: start;">
+    
+    <div class="card" style="padding: 35px; border: 1px solid var(--border);">
+        <form action="/addservice" method="POST" style="display: flex; flex-direction: column; gap: 20px;">
+            
+            <div class="field-group">
+                <label style="display: block; font-size: 0.7rem; color: var(--primary); font-weight: bold; margin-bottom: 8px; text-transform: uppercase;">Service ID</label>
+                <input type="text" name="service_id" placeholder="e.g., SERV-101" required 
+                       style="width: 100%; padding: 12px 15px; background: rgba(255,255,255,0.05); border: 1px solid var(--border); border-radius: 8px; color: white; outline: none;">
+            </div>
 
-            <label>Price ($)</label>
-            <input type="number" name="price" placeholder="e.g. 50" required>
+            <div class="field-group">
+                <label style="display: block; font-size: 0.7rem; color: var(--primary); font-weight: bold; margin-bottom: 8px; text-transform: uppercase;">Service Name</label>
+                <input type="text" name="service_name" placeholder="Enter service name..." required 
+                       style="width: 100%; padding: 12px 15px; background: rgba(255,255,255,0.05); border: 1px solid var(--border); border-radius: 8px; color: white; outline: none;">
+            </div>
 
-            <button type="submit" class="btn-submit">Add to Catalog</button>
-            <a href="/admin" style="display: block; text-align: center; margin-top: 20px; color: #94a3b8; text-decoration: none; font-size: 0.9rem;">Cancel</a>
+            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 15px;">
+                <div class="field-group">
+                    <label style="display: block; font-size: 0.7rem; color: var(--primary); font-weight: bold; margin-bottom: 8px; text-transform: uppercase;">Category</label>
+                    <select name="category" style="width: 100%; padding: 12px; background: rgba(255,255,255,0.05); border: 1px solid var(--border); border-radius: 8px; color: white; outline: none; cursor: pointer;">
+                        <option value="Cleaning" style="background: #1e293b;">Cleaning</option>
+                        <option value="Repair" style="background: #1e293b;">Repair</option>
+                        <option value="IT Support" style="background: #1e293b;">IT Support</option>
+                    </select>
+                </div>
+
+                <div class="field-group">
+                    <label style="display: block; font-size: 0.7rem; color: var(--primary); font-weight: bold; margin-bottom: 8px; text-transform: uppercase;">Price ($)</label>
+                    <input type="number" name="price" placeholder="0.01" step="0.01" min="0.01" required 
+                           style="width: 100%; padding: 12px 15px; background: rgba(255,255,255,0.05); border: 1px solid var(--border); border-radius: 8px; color: white; outline: none;">
+                </div>
+            </div>
+
+            <button type="submit" class="btn-primary" style="margin-top: 15px; padding: 14px; font-weight: bold; letter-spacing: 1px; display: flex; align-items: center; justify-content: center; gap: 10px; border: none; border-radius: 8px; cursor: pointer;">
+                <i class="fas fa-paper-plane"></i> PUBLISH SERVICE
+            </button>
         </form>
     </div>
-</body>
-</html>
+
+    <div style="display: flex; flex-direction: column; gap: 20px;">
+        <div class="card" style="background: linear-gradient(135deg, rgba(77, 171, 247, 0.1), transparent); border: 1px solid rgba(77, 171, 247, 0.2);">
+            <h4 style="margin: 0 0 10px 0; color: var(--primary);"><i class="fas fa-lightbulb"></i> Pro Tip</h4>
+            <p style="font-size: 0.85rem; color: var(--text-muted); line-height: 1.6;">
+                Use descriptive names and competitive pricing. Prices must be at least $0.01 to be published.
+            </p>
+        </div>
+        
+        <div class="card" style="border: 1px dashed var(--border); background: transparent; text-align: center; padding: 40px;">
+            <i class="fas fa-image" style="font-size: 2rem; color: var(--border); margin-bottom: 10px;"></i>
+            <p style="font-size: 0.8rem; color: var(--text-muted);">Preview will update once published.</p>
+        </div>
+    </div>
+</div>
+
+<style>
+    /* Fixed CSS Selectors */
+    input:focus, select:focus {
+        border-color: var(--primary) !important;
+        background: rgba(255,255,255,0.1) !important;
+        box-shadow: 0 0 10px rgba(77, 171, 247, 0.2);
+        transition: all 0.3s ease;
+    }
+
+    input::-webkit-outer-spin-button,
+    input::-webkit-inner-spin-button {
+        -webkit-appearance: none;
+        margin: 0;
+    }
+</style>
+
+{% endblock %}

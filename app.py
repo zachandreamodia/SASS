@@ -12,9 +12,9 @@ USER = {
 }
 
 services = {
-    "1111": {"service_id": "1111", "service_name": "Standard Haircut", "category": "Grooming", "price": "100", "status": "Active"},
-    "2221": {"service_id": "2221", "service_name": "Deep Tissue Massage", "category": "Wellness", "price": "250", "status": "Active"},
-    "3331": {"service_id": "3331", "service_name": "Car Wash & Wax", "category": "Maintenance", "price": "120", "status": "Active"}
+    "1111": {"service_id": "1111", "service_name": "Standard Haircut", "category": "Grooming", "price": 100.0, "status": "Active"},
+    "2221": {"service_id": "2221", "service_name": "Deep Tissue Massage", "category": "Wellness", "price": 250.0, "status": "Active"},
+    "3331": {"service_id": "3331", "service_name": "Car Wash & Wax", "category": "Maintenance", "price": 120.0, "status": "Active"}
 }
 
 appointments = {}
@@ -47,7 +47,7 @@ def login():
                 if USER[username][1] == 'admin':
                     return redirect(url_for("admin"))
                 else:
-                    return redirect(url_for("user_dashboard"))
+                    return redirect(url_for("user_services"))
             else:
                 flash("Invalid username or password", "error")
         else:
@@ -64,9 +64,15 @@ def addservice():
         sid = request.form.get("service_id")
         name = request.form.get("service_name")
         cat = request.form.get("category")
-        prc = request.form.get("price")
+        
+        # Validation logic: Ensure price is a number and greater than zero
+        try:
+            prc_input = request.form.get("price", "0")
+            prc = float(prc_input) if prc_input else 0
+        except ValueError:
+            prc = 0
 
-        if sid and name:
+        if sid and name and prc > 0:
             services[sid] = {
                 "service_id": sid,
                 "service_name": name,
@@ -74,10 +80,16 @@ def addservice():
                 "price": prc,
                 "status": "Active"
             }
+            flash(f"Service '{name}' added successfully!", "success")
+            return redirect(url_for("admin")) # Redirect back to the dashboard
+        else:
+            if prc <= 0:
+                flash("Error: Price must be greater than zero.", "danger")
+            else:
+                flash("Error: Service ID and Name are required.", "danger")
 
-            return redirect(url_for("admin"))
-
-    return render_template("addService.html")
+    # Pass appointments so the sidebar badge stays updated
+    return render_template("addService.html", appointments=appointments)
 
 @app.route("/admin/report", methods=["GET", "POST"])
 def admin_report():
@@ -119,31 +131,52 @@ def admin_report():
         yearly=yearly
     )
 
-@app.route("/edit_service/<id>", methods=["GET", "POST"])
-def edit_service(id):
+@app.route("/edit_service/<sid>", methods=["GET", "POST"])
+def edit_service(sid):
     if session.get("role") != "admin":
         return redirect(url_for("login"))
 
-    service = services.get(id)
-
+    # 1. Find the service in your dictionary
+    service = services.get(sid)
     if not service:
+        flash("Service not found!", "danger")
         return redirect(url_for("admin"))
 
     if request.method == "POST":
-        service["service_name"] = request.form.get("service_name")
-        service["category"] = request.form.get("category")
-        service["price"] = request.form.get("price")
+        # 2. Collect updated data
+        name = request.form.get("service_name")
+        cat = request.form.get("category")
+        
+        try:
+            prc = float(request.form.get("price", 0))
+        except ValueError:
+            prc = 0
 
-        return redirect(url_for("admin"))
+        # 3. Validation
+        if name and prc > 0:
+            services[sid].update({
+                "service_name": name,
+                "category": cat,
+                "price": prc
+            })
+            flash(f"Service '{name}' updated successfully!", "success")
+            return redirect(url_for("admin"))
+        else:
+            flash("Invalid data. Check name and price.", "danger")
 
-    return render_template("edit_service.html", service=service)
+    # 4. Pass the existing 'service' object to the template
+    return render_template("editService.html", service=service, appointments=appointments)
 
-@app.route("/delete_service/<id>")
-def delete_service(id):
+@app.route("/delete_service/<s_id>")
+def delete_service(s_id):
     if session.get("role") != "admin":
         return redirect(url_for("login"))
-
-    services.pop(id, None)
+    
+    if s_id in services:
+        name = services[s_id]['service_name']
+        del services[s_id]
+        flash(f"Service '{name}' has been removed.", "success")
+    
     return redirect(url_for("admin"))
 
 @app.route("/admin")
@@ -203,95 +236,69 @@ def user_services():
 
 @app.route("/book", methods=["GET", "POST"])
 def book_appointment():
+    # 1. Access Control
     if "username" not in session:
         flash("Please login first", "error")
         return redirect(url_for("login"))
 
-    selected_service = request.args.get("service")
+    # 2. Get 'service_name' from URL (for the pre-selection logic)
+    # This helps find which ID to select when coming from the services page
+    pre_selected_name = request.args.get("service")
 
     if request.method == "POST":
-        selected_service = request.form.get("service")
+        # Capture data from form
+        # Note: we are using 'service_id' now!
+        selected_id = request.form.get("service_id") 
         selected_date = request.form.get("date")
         selected_time = request.form.get("time")
         address = request.form.get("address")
 
-        if not selected_service or not selected_date or not selected_time:
+        # 3. Basic Validation
+        if not selected_id or not selected_date or not selected_time:
             flash("All fields are required", "error")
-            return render_template(
-                "book_appointment.html",
-                services=services,
-                selected_service=selected_service
-            )
+            return redirect(url_for('book_appointment'))
 
+        # 4. Date/Time Validation
         try:
-            selected_datetime = datetime.strptime(
-                selected_date + " " + selected_time, "%Y-%m-%d %H:%M"
-            )
+            selected_datetime = datetime.strptime(selected_date + " " + selected_time, "%Y-%m-%d %H:%M")
+            if selected_datetime < datetime.now():
+                flash("Cannot book in the past", "error")
+                return render_template("book_appointment.html", services=services, selected_service=pre_selected_name)
         except:
-            flash("Invalid date/time format", "error")
-            return render_template(
-                "book_appointment.html",
-                services=services,
-                selected_service=selected_service
-            )
+            flash("Invalid date or time format", "error")
+            return render_template("book_appointment.html", services=services, selected_service=pre_selected_name)
 
-        if selected_datetime < datetime.now():
-            flash("Cannot book past date/time", "error")
-            return render_template(
-                "book_appointment.html",
-                services=services,
-                selected_service=selected_service
-            )
-
-        # Max 3 per day
+        # 5. Availability Check (Max 3 per day for this ID)
         count = 0
         for appt in appointments.values():
-            if appt["service"] == selected_service and appt["date"] == selected_date:
+            # Check against service_id instead of name
+            if appt.get("service_id") == selected_id and appt["date"] == selected_date:
                 count += 1
-
+        
         if count >= 3:
-            flash("Service fully booked (max 3 per day)", "error")
-            return render_template(
-                "book_appointment.html",
-                services=services,
-                selected_service=selected_service
-            )
+            flash("This service is fully booked for the selected date.", "error")
+            return render_template("book_appointment.html", services=services, selected_service=pre_selected_name)
 
-        # Duplicate time
-        for appt in appointments.values():
-            if (
-                appt["service"] == selected_service and
-                appt["date"] == selected_date and
-                appt["time"] == selected_time
-            ):
-                flash("Time slot already taken", "error")
-                return render_template(
-                    "book_appointment.html",
-                    services=services,
-                    selected_service=selected_service
-                )
-
-        # Save
+        # 6. Save Appointment with the ID
         appt_id = str(uuid.uuid4())[:8]
-
         appointments[appt_id] = {
             "id": appt_id,
             "user": session["username"],
-            "service": selected_service,
+            "service_id": selected_id,  # Storing the ID as the "Foreign Key"
             "date": selected_date,
             "time": selected_time,
             "address": address,
             "status": "Pending"
         }
 
-        flash("Appointment booked successfully!", "success")
+        flash("Appointment submitted successfully!", "success")
         return redirect(url_for("user_dashboard"))
 
-    # ✅ IMPORTANT FIX HERE
+    # GET Request: Pass services and the pre-selected name to the template
     return render_template(
-        "book_appointment.html",
-        services=services,
-        selected_service=selected_service
+        "book_appointment.html", 
+        services=services, 
+        selected_service=pre_selected_name
     )
 
 @app.route("/edit/<id>", methods=["GET", "POST"])
@@ -302,6 +309,7 @@ def edit_appointment(id):
 
     appt = appointments.get(id)
 
+    # 1. Validation Checks
     if not appt:
         flash("Appointment not found", "error")
         return redirect(url_for("user_dashboard"))
@@ -310,20 +318,22 @@ def edit_appointment(id):
         flash("Unauthorized action", "error")
         return redirect(url_for("user_dashboard"))
 
+    # Check if locked (cannot edit within 24 hours)
     appt_date = datetime.strptime(appt["date"], "%Y-%m-%d").date()
-    if (appt_date - datetime.today().date()).days <= 1:
-        flash("Cannot edit locked appointment", "error")
+    if (appt_date - datetime.today().date()).days < 1:
+        flash("Cannot edit appointment within 24 hours of service", "error")
         return redirect(url_for("user_dashboard"))
 
     if request.method == "POST":
-        selected_service = request.form.get("service")
+        # Note: Getting 'service_id' to match the HTML select name
+        selected_service_id = request.form.get("service_id")
         selected_date = request.form.get("date")
         selected_time = request.form.get("time")
         address = request.form.get("address")
 
-        if not selected_service or not selected_date or not selected_time:
+        if not selected_service_id or not selected_date or not selected_time:
             flash("All fields are required", "error")
-            return render_template("book_appointment.html", appt=appt, services=services)
+            return render_template("book_appointment.html", appt=appt, services=services, is_edit=True)
 
         try:
             selected_datetime = datetime.strptime(
@@ -331,29 +341,32 @@ def edit_appointment(id):
             )
         except:
             flash("Invalid date/time format", "error")
-            return render_template("book_appointment.html", appt=appt, services=services)
+            return render_template("book_appointment.html", appt=appt, services=services, is_edit=True)
 
         if selected_datetime < datetime.now():
             flash("Cannot select past date/time", "error")
-            return render_template("book_appointment.html", appt=appt, services=services)
+            return render_template("book_appointment.html", appt=appt, services=services, is_edit=True)
 
+        # 2. Availability Check
         for key, a in appointments.items():
-            if key != id and a["service"] == selected_service and a["date"] == selected_date and a["time"] == selected_time:
-                flash("Time slot already taken", "error")
-                return render_template("book_appointment.html", appt=appt, services=services)
+            if key != id and a.get("service_id") == selected_service_id and a["date"] == selected_date and a["time"] == selected_time:
+                flash("This specific time slot is already taken", "error")
+                return render_template("book_appointment.html", appt=appt, services=services, is_edit=True)
 
+        # 3. Apply the update
         appt.update({
-            "service": selected_service,
+            "service_id": selected_service_id, # Use service_id for consistency
             "date": selected_date,
             "time": selected_time,
-            "address": address
+            "address": address,
+            "status": "Pending" # Reset status so admin re-approves changes
         })
 
         flash("Appointment updated successfully!", "success")
         return redirect(url_for("user_dashboard"))
 
-    return render_template("book_appointment.html", appt=appt, services=services)
-
+    # 4. GET Request - passing is_edit=True to the template
+    return render_template("book_appointment.html", appt=appt, services=services, is_edit=True)
 @app.route("/delete/<id>")
 def delete_appointment(id):
     if "username" not in session:
@@ -380,16 +393,19 @@ def delete_appointment(id):
     flash("Appointment deleted successfully!", "success")
     return redirect(url_for("user_dashboard"))
 
-@app.route("/admin/update_status/<id>/<status>")
-def update_status(id, status):
+@app.route("/update_status/<appt_id>/<status>")
+def update_status(appt_id, status):
     if session.get("role") != "admin":
         return redirect(url_for("login"))
 
-    appt = appointments.get(id)
-
-    if appt:
-        appt["status"] = status
-
+    if appt_id in appointments:
+        # Only allow update if the status is currently 'Pending'
+        if appointments[appt_id].get("status") == "Pending":
+            appointments[appt_id]["status"] = status
+            flash(f"Appointment {status}!", "success")
+        else:
+            flash("This appointment has already been processed.", "error")
+    
     return redirect(url_for("admin_bookings"))
 
 @app.route("/logout")
