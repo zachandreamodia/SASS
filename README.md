@@ -1,94 +1,204 @@
-## MEMBERS: Zach Andre Amodia, Lyka Jane Barnigo, Hanz Joyce Marzon, John Lee Millan
+# 📅 Service Appointment and Scheduling System
 
-# Title
-## Service Appointment and Scheduling System
+## 👥 Members
+- Zach Andre Amodia  
+- Lyka Jane Barnigo  
+- Hanz Joyce Marzon  
+- John Lee Millan  
 
-# Description
-## Service Appointment and Scheduling System is a web-based system that allows users to book, manage, and track service appointments online. It helps both customers and administrators organize schedules efficiently. The system is built using Flask (Python framework) with a simple and user-friendly interface designed using css.
+---
 
-# Prerequisites
-## Python (version 3)
-## Flask library
-## Web browser
-## Code editor(Vs Code)
-## Basic knowledge of python and web development
+## 📌 Description
 
-# Installation
-## 1. Install flask 
-   ## pip install flask
-## 2. Clone or download the project files.
-## 3. Navigate to the project folder.
-   ## cd servive-appiontment-system
-## 4. Run the Flask application
-   ## python app.py
-## 5. Open your browser and go to:
-   ## http://127.0.0.1:5000/
+The **Service Appointment and Scheduling System (SASS)** is a web-based application that allows users to book, manage, and track service appointments online.  
 
-# Usage
-## User side:
-### Log in to the system
-### Book an appointment by selecting thre service
-### View or manage your appointments
+It helps both customers and administrators organize schedules efficiently. The system is developed using **Flask (Python framework)** with a simple and user-friendly interface designed using CSS.
 
-## Admin side:
-### Log in as admin
-### View all appointments
-### Manage services like adding, viewing, edit and delete
+---
 
-# Example(Flask Route)
- @app.route("/login", methods=["GET", "POST"])
- def login():
+## ⚙️ Prerequisites
 
-    if request.method == "POST":
-        username = request.form['username']
-        password = request.form['password']
+Before running the system, make sure you have the following:
 
-        if username in USER:
-            if USER[username][0] == password:
-                if USER[username][1] == 'admin':
-                    return render_template("admin.html", services=services)
-                else:
-                    return render_template("user.html")
-            else:
-                return render_template("login.html", message="Invalid username or password")
-        else:
-            return render_template("login.html", message="Invalid username or password")
+- Python (version 3 or higher)  
+- Flask library  
+- Web browser (Chrome, Edge, etc.)  
+- Code editor (VS Code recommended)  
+- Basic knowledge of Python and web development  
 
-    return render_template("login.html", message="")
+---
 
-# Module: 
-## Module 1-Log in Management
-### This module handles user authentication in the system. It allows users to securely log in and access different dashboards based on their roles.
+## 🚀 Installation
 
-### Handles user authentication by allowing users to log in using a username and password
-### Uses a route that supports both GET and POST methods for displaying and processing the login form
-### Displays the login page initially with no error message when accessed
-### Retrieves user input (username and password) from the submitted form
-### Checks if the entered username exists in the stored user data
-### Verifies if the entered password matches the stored password
-### Identifies the user’s role after successful login (admin or regular user)
-### Redirects admin users to the admin dashboard with service data displayed
-### Redirects regular users to the user interface page
-### Prevents access if the username does not exist or the password is incorrect
-### Displays an error message (“Invalid username or password”) for failed login attempts
-### Ensures system security by allowing only authorized users to access the system
-### Provides organized navigation by directing users based on their roles
+### Step 1: Install Flask
+```bash
+pip install flask
+Step 2: Clone or Download the Project
+Clone the repository or download the ZIP file
+Extract the files if downloaded
+Step 3: Navigate to the Project Folder
+cd service-appointment-system
+Step 4: Run the Flask Application
+python app.py
+Step 5: Open in Browser
+http://127.0.0.1:5000/
+💻 Usage
+👤 User Side
+Log in to the system
+Book an appointment by selecting a service, date, and time
+Enter address details
+View your appointments
+Edit or delete appointments (if not locked)
+🛠️ Admin Side
+Log in as Admin
+View all user appointments
+Manage services:
+Add new services
+View available services
+Edit existing services
+Delete services
+📌 Notes
+Appointments cannot be edited or deleted if they are 1 day before the scheduled date
+Maximum of 3 appointments per service per day
+System uses in-memory storage, so data resets when the server restarts
 
-## Module 2- User Appointment Management
-### This module allows users to manage their appointments, including booking, viewing, updating, and deleting scheduled services. It ensures proper validation and controlled access to maintain an organized scheduling system.
 
-### Allows logged-in users to book appointments by selecting a service, date, time, and address
-### Uses a route that supports both GET and POST methods for displaying and processing the booking form (/book)
-### Uses a route that supports both GET and POST methods for displaying and processing the booking form (/book)
-### Displays the appointment booking page with available services and no initial error message
-### Retrieves user input (service, date, time, and address) from the submitted form
-### Validates user input to ensure correct date and time format
-### Prevents users from booking appointments in the past
-### Limits appointment bookings to a maximum of three per service per day
-### Prevents duplicate bookings for the same service, date, and time
-### Automatically generates a unique appointment ID for each booking
-### Stores appointment details including user, service, date, time, address, and status
-### Displays only the logged-in user’s appointments in the user dashboard
-### Locks appointments that are one day or less away to prevent editing or deletion
-### Allows users to edit their existing appointments (if not locked)
-### Allows users to delete their own appointments securely
+## Module Descriptions
+
+---
+
+### **Module 1: Login Management**
+
+**Status:** ✅ Fully Implemented & Functioning  
+
+#### Access
+- **Admin & User** | Route: `/login`
+
+#### Features
+
+1. **User Authentication**
+   - Allows users to log in using a username and password  
+   - Supports both GET and POST methods  
+
+2. **Credential Validation**
+   - Checks if the username exists in the system  
+   - Verifies if the password is correct  
+
+3. **Role Identification**
+   - Determines if the user is an Admin or a regular User  
+
+4. **Role-Based Redirection**
+   - Admin users are redirected to the admin dashboard  
+   - Regular users are redirected to the user dashboard  
+
+5. **Error Handling**
+   - Displays “Invalid username or password” for failed login attempts  
+
+#### Example Workflow
+
+User opens login page
+Inputs username and password
+System validates credentials
+If admin → redirect to admin dashboard
+If user → redirect to user dashboard
+If invalid → show error message
+
+---
+
+### **Module 2: User Appointment Management**
+
+**Status:** ✅ Fully Implemented & Functioning  
+
+#### Access
+- **User Only** | Routes: `/book`, `/dashboard`
+
+#### Features
+
+1. **Book Appointment**
+   - Users select service, date, time, and address  
+   - System generates a unique appointment ID  
+
+2. **Input Validation**
+   - Prevents booking appointments in the past  
+   - Ensures proper date and time format  
+
+3. **Booking Restrictions**
+   - Maximum of **3 appointments per service per day**  
+   - Prevents duplicate bookings (same service, date, and time)  
+
+4. **View Appointments**
+   - Displays only the logged-in user's appointments  
+
+5. **Edit Appointment**
+   - Users can edit their appointments if not locked  
+
+6. **Delete Appointment**
+   - Users can delete their own appointments securely  
+
+7. **Appointment Locking**
+   - Appointments are locked if **1 day or less before schedule**  
+
+#### Data Stored
+
+- Appointment ID  
+- Username  
+- Service  
+- Date  
+- Time  
+- Address  
+- Status  
+
+#### Example Workflow
+
+User logs in
+Clicks "Book Appointment"
+Selects service, date, time, address
+System validates input
+Appointment saved
+Appointment appears in dashboard
+
+---
+
+### **Module 3: Admin Management**
+
+**Status:** ✅ Fully Implemented & Functioning  
+
+#### Access
+- **Admin Only** | Routes: `/admin_bookings`, `/update_status`, `/services`
+
+#### Features
+
+1. **Global Appointment Oversight**
+   - Displays all appointments from all registered users in a centralized table
+   - Shows customer names, service details, and schedules
+
+2. **Service CRUD Operations**
+   - **Create:** Add new services with specific names and pricing
+   - **Read:** View the current list of all service offerings
+   - **Update:** Edit existing service names or adjust prices
+   - **Delete:** Remove services from the system permanently
+
+3. **Status Decision Control**
+   - Admin can review "Pending" bookings
+   - Provides specific actions to **Approve** or **Decline** a request
+
+4. **Action Locking**
+   - Once a status is changed to Approved or Declined, the action buttons disappear
+   - Prevents further changes to the status to maintain record accuracy
+
+5. **System-Wide Sync**
+   - Changes to service names or appointment statuses reflect instantly on the User side
+   - Ensures both Admin and Customer are viewing synchronized data
+
+6. **Administrative Security**
+   - Restricted access ensuring only accounts with the 'admin' role can reach management routes
+   - Unauthorized users are redirected back to the login page
+
+#### Example Workflow
+
+Admin logs in
+Opens "All System Bookings"
+Reviews pending service requests
+Clicks "Approve" or "Decline"
+Decision is locked and status updates on User Dashboard
+Admin manages services (Add/Edit/Delete) as needed
