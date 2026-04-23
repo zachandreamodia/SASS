@@ -6,6 +6,11 @@
 - Hanz Joyce Marzon  
 - John Lee Millan  
 
+### Demo Acccount:
+- Username = admin
+- Password = admin123
+- Username = user
+- Password = user123
 ---
 
 ## 📌 Description
@@ -29,17 +34,20 @@ Before running the system, make sure you have the following:
 ---
 
 ## 🚀 Installation
-
-### Step 1: Install Flask
 ```bash
+Step 1: Install Flask
 pip install flask
+
 Step 2: Clone or Download the Project
 Clone the repository or download the ZIP file
 Extract the files if downloaded
+
 Step 3: Navigate to the Project Folder
 cd service-appointment-system
+
 Step 4: Run the Flask Application
 python app.py
+
 Step 5: Open in Browser
 http://127.0.0.1:5000/
 💻 Usage
@@ -61,7 +69,7 @@ Delete services
 Appointments cannot be edited or deleted if they are 1 day before the scheduled date
 Maximum of 3 appointments per service per day
 System uses in-memory storage, so data resets when the server restarts
-
+``` 
 
 ## Module Descriptions
 
