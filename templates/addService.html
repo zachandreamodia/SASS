@@ -1,4 +1,5 @@
 {% extends "layout.html" %}
+{% block title %}Add New Service{% endblock %}
 {% block content %}
 
 <div style="margin-bottom: 30px;">
@@ -6,74 +7,148 @@
     <p style="color: var(--text-muted);">Expand your business catalog by adding a high-quality service offering.</p>
 </div>
 
-<div style="display: grid; grid-template-columns: 1.2fr 1fr; gap: 30px; align-items: start;">
-    
-    <div class="card" style="padding: 35px; border: 1px solid var(--border);">
-        <form action="/addservice" method="POST" style="display: flex; flex-direction: column; gap: 20px;">
+{% with messages = get_flashed_messages(with_categories=true) %}
+  {% if messages %}
+    {% for category, message in messages %}
+      <div class="alert {{ 'alert-danger' if category == 'danger' else 'alert-success' }}">
+        <i class="fas {{ 'fa-exclamation-circle' if category == 'danger' else 'fa-check-circle' }}"></i>
+        {{ message }}
+      </div>
+    {% endfor %}
+  {% endif %}
+{% endwith %}
+
+<div class="admin-grid">
+    <div class="card form-container">
+        <form action="/addservice" method="POST" class="admin-form">
             
             <div class="field-group">
-                <label style="display: block; font-size: 0.7rem; color: var(--primary); font-weight: bold; margin-bottom: 8px; text-transform: uppercase;">Service ID</label>
-                <input type="text" name="service_id" placeholder="e.g., SERV-101" required 
-                       style="width: 100%; padding: 12px 15px; background: rgba(255,255,255,0.05); border: 1px solid var(--border); border-radius: 8px; color: white; outline: none;">
+                <label class="field-label">Service ID</label>
+                <input type="text" name="service_id" class="custom-input" placeholder="e.g., SERV-101" required>
             </div>
 
             <div class="field-group">
-                <label style="display: block; font-size: 0.7rem; color: var(--primary); font-weight: bold; margin-bottom: 8px; text-transform: uppercase;">Service Name</label>
-                <input type="text" name="service_name" placeholder="Enter service name..." required 
-                       style="width: 100%; padding: 12px 15px; background: rgba(255,255,255,0.05); border: 1px solid var(--border); border-radius: 8px; color: white; outline: none;">
+                <label class="field-label">Service Name</label>
+                <input type="text" name="service_name" class="custom-input" placeholder="Enter service name..." required>
             </div>
 
-            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 15px;">
+            <div class="split-fields">
                 <div class="field-group">
-                    <label style="display: block; font-size: 0.7rem; color: var(--primary); font-weight: bold; margin-bottom: 8px; text-transform: uppercase;">Category</label>
-                    <select name="category" style="width: 100%; padding: 12px; background: rgba(255,255,255,0.05); border: 1px solid var(--border); border-radius: 8px; color: white; outline: none; cursor: pointer;">
-                        <option value="Cleaning" style="background: #1e293b;">Cleaning</option>
-                        <option value="Repair" style="background: #1e293b;">Repair</option>
-                        <option value="IT Support" style="background: #1e293b;">IT Support</option>
+                    <label class="field-label">Category</label>
+                    <select name="category" class="custom-select">
+                        <option value="Cleaning">Cleaning</option>
+                        <option value="Repair">Repair</option>
+                        <option value="IT Support">IT Support</option>
                     </select>
                 </div>
 
                 <div class="field-group">
-                    <label style="display: block; font-size: 0.7rem; color: var(--primary); font-weight: bold; margin-bottom: 8px; text-transform: uppercase;">Price ($)</label>
-                    <input type="number" name="price" placeholder="0.01" step="0.01" min="0.01" required 
-                           style="width: 100%; padding: 12px 15px; background: rgba(255,255,255,0.05); border: 1px solid var(--border); border-radius: 8px; color: white; outline: none;">
+                    <label class="field-label">Price ($)</label>
+                    <input type="number" name="price" class="custom-input" placeholder="0.00" step="0.01" min="0.01" required>
                 </div>
             </div>
 
-            <button type="submit" class="btn-primary" style="margin-top: 15px; padding: 14px; font-weight: bold; letter-spacing: 1px; display: flex; align-items: center; justify-content: center; gap: 10px; border: none; border-radius: 8px; cursor: pointer;">
-                <i class="fas fa-paper-plane"></i> PUBLISH SERVICE
+            <button type="submit" class="btn-primary-action">
+                <i class="fas fa-plus-circle"></i> PUBLISH SERVICE
             </button>
         </form>
     </div>
 
-    <div style="display: flex; flex-direction: column; gap: 20px;">
-        <div class="card" style="background: linear-gradient(135deg, rgba(77, 171, 247, 0.1), transparent); border: 1px solid rgba(77, 171, 247, 0.2);">
-            <h4 style="margin: 0 0 10px 0; color: var(--primary);"><i class="fas fa-lightbulb"></i> Pro Tip</h4>
-            <p style="font-size: 0.85rem; color: var(--text-muted); line-height: 1.6;">
-                Use descriptive names and competitive pricing. Prices must be at least $0.01 to be published.
-            </p>
-        </div>
-        
-        <div class="card" style="border: 1px dashed var(--border); background: transparent; text-align: center; padding: 40px;">
-            <i class="fas fa-image" style="font-size: 2rem; color: var(--border); margin-bottom: 10px;"></i>
-            <p style="font-size: 0.8rem; color: var(--text-muted);">Preview will update once published.</p>
+    <div class="sidebar-info">
+        <div class="card info-card">
+            <h4 class="info-title"><i class="fas fa-lightbulb"></i> Pro Tip</h4>
+            <p class="info-text">Avoid using simple IDs like "1". Use codes like <strong>CLN-01</strong> to stay organized.</p>
         </div>
     </div>
 </div>
 
 <style>
-    /* Fixed CSS Selectors */
-    input:focus, select:focus {
-        border-color: var(--primary) !important;
-        background: rgba(255,255,255,0.1) !important;
-        box-shadow: 0 0 10px rgba(77, 171, 247, 0.2);
-        transition: all 0.3s ease;
+    /* CLEANED CSS BLOCK 
+       All property-value pairs verified to prevent 'propertyvalueexpected' errors.
+    */
+    .admin-grid {
+        display: grid;
+        grid-template-columns: 1.2fr 1fr;
+        gap: 30px;
+        align-items: start;
     }
 
-    input::-webkit-outer-spin-button,
-    input::-webkit-inner-spin-button {
-        -webkit-appearance: none;
-        margin: 0;
+    .form-container {
+        padding: 35px;
+        border: 1px solid var(--border);
+        background-color: rgba(255, 255, 255, 0.02);
+    }
+
+    .admin-form {
+        display: flex;
+        flex-direction: column;
+        gap: 20px;
+    }
+
+    .field-label {
+        display: block;
+        font-size: 0.7rem;
+        color: var(--primary);
+        font-weight: bold;
+        margin-bottom: 8px;
+        text-transform: uppercase;
+    }
+
+    .custom-input, .custom-select {
+        width: 100%;
+        padding: 12px 15px;
+        background-color: rgba(255, 255, 255, 0.05);
+        border: 1px solid var(--border);
+        border-radius: 8px;
+        color: #ffffff;
+        outline: none;
+        box-sizing: border-box;
+    }
+
+    .split-fields {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 15px;
+    }
+
+    .btn-primary-action {
+        margin-top: 15px;
+        padding: 14px;
+        font-weight: bold;
+        background-color: var(--primary);
+        color: #ffffff;
+        border: none;
+        border-radius: 8px;
+        cursor: pointer;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: 10px;
+    }
+
+    .alert {
+        padding: 15px;
+        margin-bottom: 25px;
+        border-radius: 8px;
+        border: 1px solid transparent;
+    }
+
+    .alert-danger {
+        background-color: rgba(255, 107, 107, 0.1);
+        border-color: #ff6b6b;
+        color: #ff6b6b;
+    }
+
+    .alert-success {
+        background-color: rgba(81, 207, 102, 0.1);
+        border-color: #51cf66;
+        color: #51cf66;
+    }
+
+    /* Focus States */
+    .custom-input:focus, .custom-select:focus {
+        border-color: var(--primary);
+        background-color: rgba(255, 255, 255, 0.08);
     }
 </style>
 

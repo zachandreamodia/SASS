@@ -4,6 +4,7 @@
 {% block content %}
 <div style="max-width: 1200px; margin: 0 auto; padding: 20px;">
     
+    <!-- HEADER -->
     <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 30px;">
         <div>
             <h1 style="margin: 0; font-size: 1.8rem; color: white;">System Bookings</h1>
@@ -14,6 +15,27 @@
         </div>
     </div>
 
+    <!-- 🔔 NOTIFICATIONS -->
+    <div class="card" style="padding: 20px; margin-bottom: 20px; border: 1px solid var(--border); background: rgba(255,255,255,0.02);">
+        <h2 style="margin-bottom: 15px; color: white;">🔔 Notifications</h2>
+
+        {% if notifications %}
+            {% for notif in notifications[::-1][:5] %}
+                <div style="padding: 10px; border-bottom: 1px solid var(--border); border-left: 3px solid var(--primary); margin-bottom: 5px;">
+                    <div style="color: white; font-size: 0.9rem;">
+                        {{ notif.message }}
+                    </div>
+                    <small style="color: var(--text-muted);">
+                        {{ notif.time }}
+                    </small>
+                </div>
+            {% endfor %}
+        {% else %}
+            <p style="color: var(--text-muted);">No notifications yet</p>
+        {% endif %}
+    </div>
+
+    <!-- BOOKINGS TABLE -->
     <div class="card" style="padding: 0; overflow: hidden; border: 1px solid var(--border); background: rgba(255,255,255,0.02);">
         <table style="width: 100%; border-collapse: collapse; text-align: left;">
             <thead>
@@ -23,12 +45,13 @@
                     <th style="padding: 20px;">Date & Time</th>
                     <th style="padding: 20px;">Current Status</th>
                     <th style="padding: 20px; text-align: center;">Actions</th>
+                    <th style="padding: 20px; text-align: center;">Delete</th>
                 </tr>
             </thead>
             <tbody>
                 {% if not appointments %}
                 <tr>
-                    <td colspan="5" style="padding: 40px; text-align: center; color: var(--text-muted);">
+                    <td colspan="6" style="padding: 40px; text-align: center; color: var(--text-muted);">
                         <i class="fas fa-inbox" style="font-size: 2rem; display: block; margin-bottom: 10px;"></i>
                         No appointments found in the system.
                     </td>
@@ -36,8 +59,11 @@
                 {% endif %}
 
                 {% for id, appt in appointments.items() %}
-                <tr style="border-bottom: 1px solid var(--border); transition: background 0.2s;" onmouseover="this.style.background='rgba(255,255,255,0.02)'" onmouseout="this.style.background='transparent'">
+                <tr style="border-bottom: 1px solid var(--border); transition: background 0.2s;" 
+                    onmouseover="this.style.background='rgba(255,255,255,0.02)'" 
+                    onmouseout="this.style.background='transparent'">
                     
+                    <!-- CUSTOMER -->
                     <td style="padding: 20px;">
                         <div style="display: flex; align-items: center; gap: 12px;">
                             <div style="width: 35px; height: 35px; background: var(--primary); border-radius: 50%; display: flex; align-items: center; justify-content: center; font-weight: bold; color: white;">
@@ -47,6 +73,7 @@
                         </div>
                     </td>
 
+                    <!-- SERVICE -->
                     <td style="padding: 20px;">
                         {% if appt.service_id in services %}
                             {{ services[appt.service_id].service_name }}
@@ -57,55 +84,58 @@
                         {% endif %}
                     </td>
 
+                    <!-- DATE -->
                     <td style="padding: 20px;">
                         <div style="font-size: 0.9rem;">{{ appt.date }}</div>
                         <div style="font-size: 0.8rem; color: var(--text-muted);">at {{ appt.time }}</div>
                     </td>
 
+                    <!-- STATUS -->
                     <td style="padding: 20px;">
-    {% if appt.status == 'Pending' %}
-        <span style="color: #ffa502; background: rgba(255, 165, 2, 0.1); padding: 5px 10px; border-radius: 4px; font-size: 0.8rem; border: 1px solid #ffa502;">
-            🕒 Pending
-        </span>
-    {% elif appt.status == 'Approved' %}
-        <span style="color: #2ed573; background: rgba(46, 213, 115, 0.1); padding: 5px 10px; border-radius: 4px; font-size: 0.8rem; border: 1px solid #2ed573;">
-            ✅ Approved
-        </span>
-    {% else %}
-        <span style="color: #ff4757; background: rgba(255, 71, 87, 0.1); padding: 5px 10px; border-radius: 4px; font-size: 0.8rem; border: 1px solid #ff4757;">
-            ❌ Declined
-        </span>
-    {% endif %}
-</td>
+                        {% if appt.status == 'Pending' %}
+                            <span style="color: #ffa502; background: rgba(255, 165, 2, 0.1); padding: 5px 10px; border-radius: 4px; font-size: 0.8rem; border: 1px solid #ffa502;">
+                                🕒 Pending
+                            </span>
+                        {% elif appt.status == 'Approved' %}
+                            <span style="color: #2ed573; background: rgba(46, 213, 115, 0.1); padding: 5px 10px; border-radius: 4px; font-size: 0.8rem; border: 1px solid #2ed573;">
+                                ✅ Approved
+                            </span>
+                        {% else %}
+                            <span style="color: #ff4757; background: rgba(255, 71, 87, 0.1); padding: 5px 10px; border-radius: 4px; font-size: 0.8rem; border: 1px solid #ff4757;">
+                                ❌ Declined
+                            </span>
+                        {% endif %}
+                    </td>
 
-<td style="padding: 20px; text-align: center;">
-    {% if appt.status == 'Pending' %}
-        <div style="display: flex; gap: 8px; justify-content: center;">
-            <a href="{{ url_for('update_status', appt_id=id, status='Approved') }}" 
-               style="padding: 6px 12px; background: #2ed573; color: white; border-radius: 5px; text-decoration: none; font-size: 0.75rem; font-weight: bold;">
-               Approve
-            </a>
-            <a href="{{ url_for('update_status', appt_id=id, status='Declined') }}" 
-               style="padding: 6px 12px; background: #ff4757; color: white; border-radius: 5px; text-decoration: none; font-size: 0.75rem; font-weight: bold;">
-               Decline
-            </a>
-        </div>
-    {% else %}
-        <span style="color: var(--text-muted); font-size: 0.75rem; font-style: italic;">
-            Decision Locked
-        </span>
-    {% endif %}
-</td>
+                    <!-- ACTIONS -->
+                    <td style="padding: 20px; text-align: center;">
+                        {% if appt.status == 'Pending' %}
+                            <div style="display: flex; gap: 8px; justify-content: center;">
+                                <a href="{{ url_for('update_status', appt_id=id, status='Approved') }}" 
+                                   style="padding: 6px 12px; background: #2ed573; color: white; border-radius: 5px; text-decoration: none; font-size: 0.75rem; font-weight: bold;">
+                                   Approve
+                                </a>
+                                <a href="{{ url_for('update_status', appt_id=id, status='Declined') }}" 
+                                   style="padding: 6px 12px; background: #ff4757; color: white; border-radius: 5px; text-decoration: none; font-size: 0.75rem; font-weight: bold;">
+                                   Decline
+                                </a>
+                            </div>
+                        {% else %}
+                            <span style="color: var(--text-muted); font-size: 0.75rem; font-style: italic;">
+                                Decision Locked
+                            </span>
+                        {% endif %}
+                    </td>
 
+                    <!-- DELETE -->
                     <td style="padding: 20px; text-align: center;">
                         <a href="/delete/{{ id }}" 
-                           style="color: #ff6b6b; font-size: 1.1rem; transition: transform 0.2s; display: inline-block;"
-                           onclick="return confirm('Permanently delete this booking?')"
-                           onmouseover="this.style.transform='scale(1.2)'"
-                           onmouseout="this.style.transform='scale(1)'">
+                           style="color: #ff6b6b; font-size: 1.1rem;"
+                           onclick="return confirm('Permanently delete this booking?')">
                             <i class="fas fa-trash-alt"></i>
                         </a>
                     </td>
+
                 </tr>
                 {% endfor %}
             </tbody>
@@ -114,12 +144,11 @@
 </div>
 
 <style>
-    /* Styling the select options specifically for dark mode appearance */
-    select option {
-        background: #222;
-        color: white;
-        padding: 10px;
-    }
+select option {
+    background: #222;
+    color: white;
+    padding: 10px;
+}
 </style>
 
 {% endblock %}

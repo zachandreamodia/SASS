@@ -2,7 +2,7 @@
 {% block title %}{{ 'Edit Booking' if is_edit else 'New Booking' }}{% endblock %}
 
 {% block content %}
-<div style="max-width: 600px; margin: 0 auto; padding: 40px 20px; box-sizing: border-box;">
+<div style="max-width: 600px; margin: 0 auto; padding: 40px 20px;">
     
     <div style="text-align: center; margin-bottom: 40px;">
         <div style="display: inline-block; padding: 12px; background: rgba(77, 171, 247, 0.1); border-radius: 50%; margin-bottom: 15px;">
@@ -16,64 +16,53 @@
         </p>
     </div>
 
-    <div class="card" style="padding: 40px; border: 1px solid var(--border); background: linear-gradient(145deg, rgba(255,255,255,0.02), transparent); position: relative; overflow: hidden; height: auto;">
+    <div class="card" style="padding: 40px; border: 1px solid var(--border); background: rgba(255,255,255,0.02); position: relative;">
         
-        <div style="position: absolute; top: -50px; right: -50px; width: 100px; height: 100px; background: var(--primary); filter: blur(80px); opacity: 0.1;"></div>
-
-        <form action="{{ url_for('edit_booking', appt_id=appt.id) if is_edit else url_for('book_appointment') }}" method="POST" style="display: flex; flex-direction: column; gap: 25px;">
+        <form action="{{ url_for('book_appointment', appt_id=appt.id) if is_edit else url_for('book_appointment') }}" method="POST" style="display: flex; flex-direction: column; gap: 25px;">
             
             <div class="field-group">
-                <label style="display: block; font-size: 0.7rem; color: var(--primary); font-weight: bold; margin-bottom: 10px; text-transform: uppercase; letter-spacing: 1px;">
-                    Requested Service
-                </label>
+                <label style="display: block; font-size: 0.7rem; color: var(--primary); font-weight: bold; margin-bottom: 10px; text-transform: uppercase;">Requested Service</label>
                 <div style="position: relative;">
                     <i class="fas fa-concierge-bell" style="position: absolute; left: 15px; top: 50%; transform: translateY(-50%); color: var(--text-muted); z-index: 2;"></i>
-                    <select name="service_id" required 
-                            style="width: 100%; padding: 14px 40px 14px 45px; background: rgba(0,0,0,0.4); border: 1px solid var(--border); border-radius: 10px; color: white; outline: none; appearance: none; cursor: pointer; box-sizing: border-box; position: relative; z-index: 1;">
-                        
+                    <select name="service_id" required class="custom-select">
                         <option value="" disabled {% if not selected_service and not appt %}selected{% endif %}>-- Select a Service --</option>
                         
                         {% for s_id, s in services.items() %}
                             <option value="{{ s_id }}" 
                                 {% if appt and appt.service_id == s_id %}selected
-                                {% elif s.service_name == selected_service %}selected{% endif %}>
+                                {% elif s_id == selected_service or s.service_name == selected_service %}selected{% endif %}>
                                 {{ s.service_name }} (${{ "%.2f"|format(s.price) }})
                             </option>
                         {% endfor %}
                     </select>
-                    <i class="fas fa-chevron-down" style="position: absolute; right: 15px; top: 50%; transform: translateY(-50%); color: var(--text-muted); pointer-events: none; font-size: 0.8rem; z-index: 2;"></i>
                 </div>
             </div>
 
             <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 20px;">
                 <div class="field-group">
-                    <label style="display: block; font-size: 0.7rem; color: var(--primary); font-weight: bold; margin-bottom: 10px; text-transform: uppercase; letter-spacing: 1px;">Date</label>
-                    <input type="date" name="date" required value="{{ appt.date if appt else '' }}"
-                           style="width: 100%; padding: 14px; background: rgba(0,0,0,0.4); border: 1px solid var(--border); border-radius: 10px; color: white; outline: none; box-sizing: border-box;">
+                    <label style="display: block; font-size: 0.7rem; color: var(--primary); font-weight: bold; margin-bottom: 10px; text-transform: uppercase;">Date</label>
+                    <input type="date" name="date" class="custom-input" required value="{{ appt.date if appt else '' }}">
                 </div>
                 <div class="field-group">
-                    <label style="display: block; font-size: 0.7rem; color: var(--primary); font-weight: bold; margin-bottom: 10px; text-transform: uppercase; letter-spacing: 1px;">Time</label>
-                    <input type="time" name="time" required value="{{ appt.time if appt else '' }}"
-                           style="width: 100%; padding: 14px; background: rgba(0,0,0,0.4); border: 1px solid var(--border); border-radius: 10px; color: white; outline: none; box-sizing: border-box;">
+                    <label style="display: block; font-size: 0.7rem; color: var(--primary); font-weight: bold; margin-bottom: 10px; text-transform: uppercase;">Time</label>
+                    <input type="time" name="time" class="custom-input" required value="{{ appt.time if appt else '' }}">
                 </div>
             </div>
 
             <div class="field-group">
-                <label style="display: block; font-size: 0.7rem; color: var(--primary); font-weight: bold; margin-bottom: 10px; text-transform: uppercase; letter-spacing: 1px;">Service Location</label>
+                <label style="display: block; font-size: 0.7rem; color: var(--primary); font-weight: bold; margin-bottom: 10px; text-transform: uppercase;">Service Location</label>
                 <div style="position: relative;">
                     <i class="fas fa-map-marker-alt" style="position: absolute; left: 15px; top: 18px; color: var(--text-muted);"></i>
-                    <textarea name="address" placeholder="Enter your full street address..." required rows="3"
-                              style="width: 100%; padding: 14px 14px 14px 45px; background: rgba(0,0,0,0.4); border: 1px solid var(--border); border-radius: 10px; color: white; outline: none; resize: none; box-sizing: border-box;">{{ appt.address if appt else '' }}</textarea>
+                    <textarea name="address" class="custom-input" placeholder="Enter full address..." required rows="3" style="padding-left: 45px; resize: none;">{{ appt.address if appt else '' }}</textarea>
                 </div>
             </div>
 
             <div style="margin-top: 10px; display: flex; flex-direction: column; gap: 12px;">
-                <button type="submit" class="btn-primary" style="width: 100%; padding: 16px; border-radius: 10px; font-weight: bold; font-size: 1rem; border: none; cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 10px; box-shadow: 0 4px 15px rgba(77, 171, 247, 0.3); transition: transform 0.2s;">
+                <button type="submit" class="btn-primary" style="padding: 16px; border-radius: 10px; font-weight: bold; border: none; cursor: pointer;">
                     {{ 'Update Appointment' if is_edit else 'Confirm Booking' }} <i class="fas fa-check"></i>
                 </button>
-                
-                <a href="{{ url_for('user_dashboard') }}" style="width: 100%; padding: 14px; border-radius: 10px; font-weight: bold; font-size: 0.9rem; text-decoration: none; display: flex; align-items: center; justify-content: center; gap: 8px; background: rgba(255,255,255,0.05); color: #ff6b6b; border: 1px solid rgba(255,107,107,0.2); transition: all 0.3s;">
-                    <i class="fas fa-times"></i> Cancel & Return
+                <a href="{{ url_for('user_dashboard') }}" style="text-align: center; text-decoration: none; color: #ff6b6b; font-size: 0.9rem; font-weight: bold;">
+                    Cancel & Return
                 </a>
             </div>
         </form>
@@ -81,30 +70,32 @@
 </div>
 
 <style>
-    /* Global box-sizing to fix overlapping */
-    * { box-sizing: border-box; }
+    /* Fixed, Error-Free CSS */
+    .custom-input, .custom-select {
+        width: 100%;
+        padding: 14px 15px;
+        background: rgba(0,0,0,0.4);
+        border: 1px solid var(--border);
+        border-radius: 10px;
+        color: white;
+        outline: none;
+        box-sizing: border-box;
+    }
 
-    input:focus, select:focus, textarea:focus {
+    .custom-select {
+        padding-left: 45px;
+        cursor: pointer;
+    }
+
+    .custom-input:focus, .custom-select:focus {
         border-color: var(--primary) !important;
         background: rgba(77, 171, 247, 0.08) !important;
         box-shadow: 0 0 0 4px rgba(77, 171, 247, 0.15);
-        transition: all 0.2s ease;
-    }
-
-    select option {
-        background: #1a1a1a;
-        color: white;
     }
 
     input[type="date"]::-webkit-calendar-picker-indicator,
     input[type="time"]::-webkit-calendar-picker-indicator {
         filter: invert(1);
-        cursor: pointer;
-    }
-
-    .btn-primary:active {
-        transform: scale(0.98);
     }
 </style>
-
 {% endblock %}

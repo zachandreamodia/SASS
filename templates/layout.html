@@ -78,14 +78,10 @@
                 <a href="/admin" class="nav-link"><i class="fas fa-tools"></i> Services</a>
                 <a href="/admin/bookings" class="nav-link">
                     <i class="fas fa-book"></i> All Bookings
-                    <span style="background: var(--primary); color: white; font-size: 0.6rem; padding: 2px 7px; border-radius: 10px; margin-left: auto;">
-                        {{ appointments|length if appointments else '0' }}
-                    </span>
                 </a>
                 
                 <p style="font-size: 0.65rem; color: var(--text-muted); font-weight: bold; margin: 20px 0 5px 15px; letter-spacing: 1px;">ANALYTICS</p>
                 <a href="/admin/report" class="nav-link"><i class="fas fa-chart-line"></i> Reports</a>
-                <a href="#" class="nav-link"><i class="fas fa-users"></i> Customers</a>
             {% else %}
     <p style="font-size: 0.65rem; color: var(--text-muted); font-weight: bold; margin: 10px 0 5px 15px; letter-spacing: 1px;">USER MENU</p>
     

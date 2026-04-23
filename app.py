@@ -18,7 +18,7 @@ services = {
 }
 
 appointments = {}
-
+notifications = []
 
 
 @app.route("/about")
@@ -72,6 +72,12 @@ def addservice():
         except ValueError:
             prc = 0
 
+        # --- NEW DUPLICATE ID CHECK ---
+        if sid in services:
+            flash(f"Error: Service ID '{sid}' already exists. Please use a unique ID.", "danger")
+            return render_template("addService.html", appointments=appointments)
+        # ------------------------------
+
         if sid and name and prc > 0:
             services[sid] = {
                 "service_id": sid,
@@ -81,54 +87,64 @@ def addservice():
                 "status": "Active"
             }
             flash(f"Service '{name}' added successfully!", "success")
-            return redirect(url_for("admin")) # Redirect back to the dashboard
+            return redirect(url_for("admin")) 
         else:
             if prc <= 0:
                 flash("Error: Price must be greater than zero.", "danger")
             else:
                 flash("Error: Service ID and Name are required.", "danger")
 
-    # Pass appointments so the sidebar badge stays updated
     return render_template("addService.html", appointments=appointments)
 
 @app.route("/admin/report", methods=["GET", "POST"])
 def admin_report():
     if session.get("role") != "admin":
+        flash("Admin access required", "error")
         return redirect(url_for("login"))
 
-    selected = None
-    daily = weekly = monthly = yearly = 0
+    selected_id = None
+    # stats dictionary keeps the code clean and organized
+    stats = {
+        'daily': {'count': 0, 'rev': 0},
+        'weekly': {'count': 0, 'rev': 0},
+        'monthly': {'count': 0, 'rev': 0},
+        'yearly': {'count': 0, 'rev': 0}
+    }
 
     today = datetime.today().date()
-    week_ago = today - timedelta(days=7)
-    month_ago = today - timedelta(days=30)
-    year_ago = today - timedelta(days=365)
+    # Define the start dates for each period
+    periods = {
+        'daily': today,
+        'weekly': today - timedelta(days=7),
+        'monthly': today - timedelta(days=30),
+        'yearly': today - timedelta(days=365)
+    }
 
     if request.method == "POST":
-        selected = request.form.get("service")
+        selected_id = request.form.get("service_id")
 
-        for appt in appointments.values():
-            appt_date = datetime.strptime(appt["date"], "%Y-%m-%d").date()
+        if selected_id:
+            for appt in appointments.values():
+                # Logic: Only process appointments for the selected service
+                if appt.get("service_id") == selected_id:
+                    appt_date = datetime.strptime(appt["date"], "%Y-%m-%d").date()
+                    price = float(services.get(selected_id, {}).get('price', 0))
 
-            # ✅ FIX: compare using service_id
-            if appt["service"] == selected:
-                if appt_date == today:
-                    daily += 1
-                if appt_date >= week_ago:
-                    weekly += 1
-                if appt_date >= month_ago:
-                    monthly += 1
-                if appt_date >= year_ago:
-                    yearly += 1
+                    for period, start_date in periods.items():
+                        # Condition: Daily must be exact, others are 'since then'
+                        is_match = (appt_date == start_date) if period == 'daily' else (appt_date >= start_date)
+                        
+                        if is_match:
+                            stats[period]['count'] += 1
+                            # Logic: Only 'Confirmed' status counts as Revenue
+                            if appt.get("status") == "Confirmed":
+                                stats[period]['rev'] += price
 
     return render_template(
         "admin_report.html",
         services=services,
-        selected=selected,
-        daily=daily,
-        weekly=weekly,
-        monthly=monthly,
-        yearly=yearly
+        selected_id=selected_id,
+        stats=stats
     )
 
 @app.route("/edit_service/<sid>", methods=["GET", "POST"])
@@ -194,7 +210,8 @@ def admin_bookings():
     return render_template(
     "admin_bookings.html",
     appointments=appointments,
-    services=services
+    services=services,
+    notifications=notifications
 )
 
 from datetime import datetime
@@ -291,6 +308,11 @@ def book_appointment():
             "status": "Pending"
         }
 
+        notifications.append({
+            "message": f"New appointment booked by {session['username']}",
+            "time": datetime.now().strftime("%Y-%m-%d %H:%M:%S")
+        })
+
         flash("Appointment submitted successfully!", "success")
         return redirect(url_for("user_dashboard"))
 
@@ -362,11 +384,17 @@ def edit_appointment(id):
             "status": "Pending" # Reset status so admin re-approves changes
         })
 
+        notifications.append({
+    "message": f"{session['username']} updated an appointment",
+    "time": datetime.now().strftime("%Y-%m-%d %H:%M:%S")
+})
+
         flash("Appointment updated successfully!", "success")
         return redirect(url_for("user_dashboard"))
 
     # 4. GET Request - passing is_edit=True to the template
     return render_template("book_appointment.html", appt=appt, services=services, is_edit=True)
+
 @app.route("/delete/<id>")
 def delete_appointment(id):
     if "username" not in session:
@@ -389,6 +417,11 @@ def delete_appointment(id):
         return redirect(url_for("user_dashboard"))
 
     appointments.pop(id)
+
+    notifications.append({
+    "message": f"{session['username']} deleted an appointment",
+    "time": datetime.now().strftime("%Y-%m-%d %H:%M:%S")
+})
 
     flash("Appointment deleted successfully!", "success")
     return redirect(url_for("user_dashboard"))
