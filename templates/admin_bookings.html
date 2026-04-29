@@ -44,6 +44,7 @@
                     <th style="padding: 20px;">Service</th>
                     <th style="padding: 20px;">Date & Time</th>
                     <th style="padding: 20px;">Current Status</th>
+                    <th style="padding: 20px;">Address</th>
                     <th style="padding: 20px; text-align: center;">Actions</th>
                     <th style="padding: 20px; text-align: center;">Delete</th>
                 </tr>
@@ -105,6 +106,11 @@
                                 ❌ Declined
                             </span>
                         {% endif %}
+                    </td>
+
+                    <!-- ADDRESS -->
+                    <td style="padding: 20px; color: var(--text-muted);">
+                        {{ appt.address }}
                     </td>
 
                     <!-- ACTIONS -->

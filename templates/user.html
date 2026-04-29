@@ -20,10 +20,11 @@
                 <tr style="background: rgba(255,255,255,0.05); color: var(--text-muted); font-size: 0.8rem; text-transform: uppercase; letter-spacing: 1px;">
                     <th style="padding: 20px;">Service</th>
                     <th style="padding: 20px;">Date & Time</th>
+                    <th style="padding: 20px;">Address</th>
                     <th style="padding: 20px;">Status</th>
                     <th style="padding: 20px; text-align: center;">Action</th>
                 </tr>
-            </thead>
+            </thead>    
             <tbody>
                 {% for id, appt in appointments.items() if appt.user == session['username'] %}
                 <tr style="border-bottom: 1px solid var(--border); transition: background 0.2s;" onmouseover="this.style.background='rgba(255,255,255,0.02)'" onmouseout="this.style.background='transparent'">
@@ -44,7 +45,11 @@
                         <i class="far fa-clock" style="margin-right: 5px; color: var(--text-muted);"></i> {{ appt.time }}
                     </td>
 
-                    <td style="padding: 20px;">
+                    <td style="padding: 20px; color: var(--text-muted);">
+                        {{ appt.address or 'No address provided' }}
+                    </td>
+
+                    <td style="padding: 20px; color: var(--text-muted);">
                         {% if appt.status == "Pending" %}
                             <span style="color: #ffa94d; background: rgba(255, 169, 77, 0.1); padding: 4px 10px; border-radius: 20px; font-size: 0.75rem; border: 1px solid rgba(255, 169, 77, 0.3);">
                                 ● Pending
@@ -80,7 +85,7 @@
                 </tr>
                 {% else %}
                 <tr>
-                    <td colspan="4" style="text-align: center; color: var(--text-muted); padding: 60px;">
+                    <td colspan="5" style="text-align: center; color: var(--text-muted); padding: 60px;">
                         <i class="fas fa-calendar-times" style="font-size: 2rem; display: block; margin-bottom: 10px; opacity: 0.5;"></i>
                         No appointments found. <a href="/user_services" style="color: var(--primary);">Book your first service here.</a>
                     </td>
