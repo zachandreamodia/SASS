@@ -1,3 +1,5 @@
+from abc import ABC
+
 from flask import Flask, flash, render_template, request, redirect, url_for, session
 from datetime import datetime, timedelta
 import uuid
@@ -8,7 +10,7 @@ app.secret_key = "sass_pro_secret_key"
 # Object-Oriented Design with Four Pillars
 
 # Abstraction: Base classes and interfaces
-class User:
+class User(ABC):
     def __init__(self, username, password, role):
         self._username = username  # Encapsulation: private attribute
         self._password = password

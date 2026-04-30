@@ -210,3 +210,60 @@ Reviews pending service requests
 Clicks "Approve" or "Decline"
 Decision is locked and status updates on User Dashboard
 Admin manages services (Add/Edit/Delete) as needed
+
+---
+
+### **Module 4: Report Management**
+
+**Status:** ✅ Fully Implemented & Functioning  
+
+#### Access
+- **Admin Only** | Route: `/admin/report`
+
+#### Features
+
+1. **Service-Based Reporting**
+   - Admin selects a specific service from a dropdown list  
+   - Report is generated based on the selected service  
+   - Helps analyze performance per service  
+
+2. **Time-Based Analytics**
+   - System automatically categorizes data into:
+     - Daily  
+     - Weekly  
+     - Monthly  
+     - Yearly  
+
+3. **Appointment Count Tracking**
+   - Displays total number of appointments per selected time range  
+   - Includes all appointment statuses  
+   - Only counts appointments with **Approved status**  
+
+4. **Dynamic Report Generation**
+   - Reports are generated in real-time upon form submission  
+   - No need for manual calculations  
+
+5. **Accurate Date Filtering**
+   - Uses current date as reference  
+   - Filters appointments depending on selected time range  
+
+#### Data Included
+
+- Service ID  
+- Service Name  
+- Total Bookings (Daily, Weekly, Monthly, Yearly)  
+- Total Revenue (based on approved appointments)  
+
+#### Example Workflow
+
+Admin logs in  
+Navigates to "Reports" page  
+Selects a service from dropdown  
+Clicks generate/report button  
+System calculates:
+- Number of bookings  
+- Displays report instantly  
+
+
+#### Live Website URL:
+- sass-umber.vercel.app
