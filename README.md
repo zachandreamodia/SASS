@@ -252,7 +252,6 @@ Admin manages services (Add/Edit/Delete) as needed
 - Service ID  
 - Service Name  
 - Total Bookings (Daily, Weekly, Monthly, Yearly)  
-- Total Revenue (based on approved appointments)  
 
 #### Example Workflow
 

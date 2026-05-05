@@ -332,16 +332,22 @@ def admin_report():
         if selected_id:
             service = service_manager.get_service(selected_id)
             if service:
-                price = service.price
                 for appt in appointment_manager.get_all_appointments().values():
-                    if appt.service_id == selected_id:
-                        appt_date = datetime.strptime(appt.date, "%Y-%m-%d").date()
-                        for period, start_date in periods.items():
-                            is_match = (appt_date == start_date) if period == 'daily' else (appt_date >= start_date)
-                            if is_match:
-                                stats[period]['count'] += 1
-                                if appt.status == "Confirmed":
-                                    stats[period]['rev'] += price
+
+                    if str(appt.service_id) != str(selected_id):
+                        continue
+
+                    appt_date = datetime.strptime(appt.date, "%Y-%m-%d").date()
+
+                    for period, start_date in periods.items():
+
+                        if period == 'daily':
+                            is_match = appt_date == today
+                        else:
+                            is_match = start_date <= appt_date <= today
+
+                        if is_match:
+                            stats[period]['count'] += 1
 
     return render_template(
         "admin_report.html",
@@ -362,7 +368,7 @@ def edit_service(sid):
 
     if request.method == "POST":
         name = request.form.get("service_name")
-        cat = request.form.get("category")
+        cat = request.form.get("category") 
 
         try:
             prc = float(request.form.get("price", 0))

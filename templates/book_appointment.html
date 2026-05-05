@@ -18,7 +18,7 @@
 
     <div class="card" style="padding: 40px; border: 1px solid var(--border); background: rgba(255,255,255,0.02); position: relative;">
         
-        <form action="{{ url_for('book_appointment', appt_id=appt.id) if is_edit else url_for('book_appointment') }}" method="POST" style="display: flex; flex-direction: column; gap: 25px;">
+        <form action="{{ url_for('edit_appointment', id=appt.id) if is_edit else url_for('book_appointment') }}" method="POST" style="display: flex; flex-direction: column; gap: 25px;">
             
             <div class="field-group">
                 <label style="display: block; font-size: 0.7rem; color: var(--primary); font-weight: bold; margin-bottom: 10px; text-transform: uppercase;">Requested Service</label>
